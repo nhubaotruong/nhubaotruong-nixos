@@ -14,8 +14,10 @@
 
   # Kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelParams = ["random.trustcpu=on" "zswap.compressor=lz4" "zswap.zpool=z3fold" "quiet" "loglevel=3" "systemd.unified_cgroup_hierarchy=1" "cryptomgr.notests" "intel_iommu=igfx_off" "kvm-intel.nested=1" "no_timer_check" "noreplace-smp" "page_alloc_shuffle=1" "rcupdate.rcu_expedited=1" "tsc=reliable"];
+  boot.kernelParams = ["random.trustcpu=on" "zswap.compressor=lz4" "zswap.zpool=z3fold" "quiet" "loglevel=3" "systemd.unified_cgroup_hierarchy=1" "cryptomgr.notests" "intel_iommu=igfx_off" "kvm-intel.nested=1" "no_timer_check" "noreplace-smp" "page_alloc_shuffle=1" "rcupdate.rcu_expedited=1" "tsc=reliable" "quiet" "udev.log_level=3"];
   boot.blacklistedKernelModules = ["iTCO_wdt"];
+  boot.initrd.verbose = false;
+  boot.consoleLogLevel = 0;
   boot.extraModprobeConfig = ''
 options ec_sys write_support=1
 options overlay metacopy=off redirect_dir=off
@@ -27,7 +29,11 @@ options iwlwifi power_save=1
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
+  boot.loader.timeout = 0;
   boot.loader.efi.canTouchEfiVariables = true;
+
+  # Plymouth
+  boot.plymouth.enable = true;
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -114,7 +120,7 @@ options iwlwifi power_save=1
   users.users.nhubao = {
     isNormalUser = true;
     description = "Nhu Bao Truong";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" "realtime" "i2c" "adm" "video" "kvm" "input"];
     packages = with pkgs; [
     #  thunderbird
     ];
@@ -127,8 +133,24 @@ options iwlwifi power_save=1
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-      firefox nixos-option neovim jamesdsp docker docker-compose docker-buildx gnome.gnome-tweaks crun tilix adw-gtk3 supergfxctl lz4 papirus-icon-theme joypixels nerdfonts noto-fonts noto-fonts-cjk vscode libimobiledevice usbmuxd ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin git
+	nixos-option neovim jamesdsp docker docker-compose docker-buildx gnome.gnome-tweaks gnome.file-roller rar p7zip crun tilix adw-gtk3 supergfxctl lz4 papirus-icon-theme vscode libimobiledevice usbmuxd ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin git tailscale distrobox genymotion rtkit i2c-tools virt-manager
   ];
+
+  # Fonts
+  fonts.fonts = with pkgs; [
+	joypixels noto-fonts noto-fonts-cjk corefonts liberation_ttf
+	(nerdfonts.override {fonts = ["FiraCode" "Meslo"];})
+  ];
+  fonts.fontDir.enable = true;
+
+  # GNOME
+  environment.gnome.excludePackages = (with pkgs; [
+    gnome-photos gnome-tour gnome-text-editor gnome-console gnome-connections
+  ]) ++ (with pkgs.gnome; [
+    cheese gnome-terminal gedit epiphany geary evince gnome-characters totem tali iagno hitori atomix gnome-music gnome-calendar gnome-maps gnome-contacts gnome-software gnome-clocks gnome-calculator gnome-weather yelp simple-scan gnome-logs eog gnome-font-viewer seahorse 
+  ]);
+  services.udev.packages = with pkgs; [gnome.gnome-settings-daemon];
+  services.dbus.packages = with pkgs; [gnome2.GConf];
 
   # Docker
   virtualisation.docker = {
@@ -143,6 +165,9 @@ options iwlwifi power_save=1
         };
     };
   };
+
+  # Libvirt
+  virtualisation.libvirtd.enable = true;
 
   # Podman
   virtualisation.podman = {
@@ -190,6 +215,22 @@ options iwlwifi power_save=1
     packages = with pkgs; [apparmor-pam apparmor-profiles];
   };
 
+  # Tailscale
+  services.tailscale.enable = true;
+
+  # System-resolved
+  networking.nameservers = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+  services.resolved = {
+    enable = true;
+    dnssec = "true";
+    domains = [ "~." ];
+    fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+    extraConfig = ''
+      DNSOverTLS=yes
+    '';
+  };
+  systemd.services.NetworkManager-wait-online.enable = false;
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
@@ -201,13 +242,22 @@ options iwlwifi power_save=1
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh.enable = true;
 
+  # Appstream
+  appstream.enable = false;
+	
+  hardware.ksm.enable = true;
+  #hardware.nvidia.prime.sync.enable = true;
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
+  #networking.firewall = {
+  #  enable = true;
+  #  allowedTCPPortRanges = []
+  #};
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
