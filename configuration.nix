@@ -4,7 +4,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports =
@@ -13,7 +13,7 @@
     ];
 
   # Filesystems
-  fileSystems = {
+  fileSystems = lib.mkForce {
     "/" = {
       device = "/dev/mapper/ROOT";
       fsType = "btrfs";
@@ -44,11 +44,7 @@ options iwlwifi power_save=1
   '';
   boot.initrd.compressor = "zstd";
   boot.initrd.compressorArgs = ["-19" "-T0"];
-  boot.initrd.luks.devices = {
-    "ROOT" = {
-      "device" = "/dev/disk/by-label/CRYPTROOT";
-    };
-  };
+  boot.initrd.luks.devices."ROOT".device = lib.mkForce "/dev/disk/by-label/CRYPTROOT";
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
