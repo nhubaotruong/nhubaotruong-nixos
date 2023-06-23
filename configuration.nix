@@ -12,6 +12,24 @@
       ./hardware-configuration.nix
     ];
 
+  # Filesystems
+  fileSystems = {
+    "/" = {
+      device = "/dev/mapper/ROOT";
+      fsType = "btrfs";
+      options = ["subvol=@" "noatime" "nodiratime" "defaults" "ssd" "compress-force=zstd"];
+    };
+    "/home" = {
+      device = "/dev/mapper/ROOT";
+      fsType = "btrfs";
+      options = ["subvol=@home" "noatime" "nodiratime" "defaults" "ssd" "compress-force=zstd"];
+    };
+    "/boot" = {
+      device = "/dev/disk/by-label/EFI";
+      fsType = "vfat";
+    };
+  };
+
   # Kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.kernelParams = ["random.trustcpu=on" "zswap.compressor=lz4" "zswap.zpool=z3fold" "quiet" "loglevel=3" "systemd.unified_cgroup_hierarchy=1" "cryptomgr.notests" "intel_iommu=igfx_off" "kvm-intel.nested=1" "no_timer_check" "noreplace-smp" "page_alloc_shuffle=1" "rcupdate.rcu_expedited=1" "tsc=reliable" "quiet" "udev.log_level=3"];
@@ -26,6 +44,11 @@ options iwlwifi power_save=1
   '';
   boot.initrd.compressor = "zstd";
   boot.initrd.compressorArgs = ["-19" "-T0"];
+  boot.initrd.luks.devices = {
+    "ROOT" = {
+      "device": "/dev/disk/by-label/CRYPTROOT";
+    };
+  };
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -120,6 +143,7 @@ options iwlwifi power_save=1
   users.users.nhubao = {
     isNormalUser = true;
     description = "Nhu Bao Truong";
+    initialPassword = "123456";
     extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" "realtime" "i2c" "adm" "video" "kvm" "input"];
     packages = with pkgs; [
     #  thunderbird
