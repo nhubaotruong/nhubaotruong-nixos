@@ -21,7 +21,11 @@ mount -t btrfs -o defaults,ssd,noatime,nodiratime,compress-force=zstd,subvol=@ /
 mount -t btrfs -o defaults,ssd,noatime,nodiratime,compress-force=zstd,subvol=@home --mkdir /dev/mapper/ROOT /mnt/home
 mount --mkdir /dev/nvme0n1p1 /mnt/boot
 ```
-3. Install nix
+3. Generate hardware (necessary, but will be overwritten by configuration.nix)
+```console
+nixos-generate-config --root /mnt
+```
+4. Install nix
 ```console
 curl -L https://raw.githubusercontent.com/nhubaotruong/nhubaotruong-nixos/main/configuration.nix -o /mnt/etc/nixos/configuration.nix
 nixos-install
