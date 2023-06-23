@@ -64,12 +64,12 @@ options iwlwifi power_save=1
 
   # Bluetooth
   hardware.bluetooth = {
-      enable = true;
+    enable = true;
     settings = {
-        General = {
-            Experimental = true;
-            KernelExperimental = "330859bc-7506-492d-9370-9a6f0614037f";
-        };
+      General = {
+        Experimental = true;
+        KernelExperimental = "330859bc-7506-492d-9370-9a6f0614037f";
+      };
     };
   };
 
@@ -139,9 +139,6 @@ options iwlwifi power_save=1
     description = "Nhu Bao Truong";
     initialPassword = "123456";
     extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" "realtime" "i2c" "adm" "video" "kvm" "input"];
-    packages = with pkgs; [
-    #  thunderbird
-    ];
   };
 
   # Allow unfree packages
@@ -151,13 +148,13 @@ options iwlwifi power_save=1
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	nixos-option neovim jamesdsp docker docker-compose docker-buildx gnome.gnome-tweaks gnome.file-roller rar p7zip crun tilix adw-gtk3 supergfxctl lz4 papirus-icon-theme vscode libimobiledevice usbmuxd ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin git tailscale distrobox genymotion rtkit i2c-tools virt-manager
+	  nixos-option neovim jamesdsp docker docker-compose docker-buildx gnome.gnome-tweaks gnome.file-roller rar p7zip crun tilix adw-gtk3 supergfxctl lz4 papirus-icon-theme vscode libimobiledevice usbmuxd ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin git tailscale distrobox genymotion rtkit i2c-tools virt-manager
   ];
 
   # Fonts
   fonts.fonts = with pkgs; [
-	joypixels noto-fonts noto-fonts-cjk corefonts liberation_ttf
-	(nerdfonts.override {fonts = ["FiraCode" "Meslo"];})
+    joypixels noto-fonts noto-fonts-cjk corefonts liberation_ttf
+    (nerdfonts.override {fonts = ["FiraCode" "Meslo"];})
   ];
   fonts.fontDir.enable = true;
 
@@ -172,15 +169,15 @@ options iwlwifi power_save=1
 
   # Docker
   virtualisation.docker = {
-      enable = true;
-      storageDriver = "overlay2";
-      daemon.settings = {
-          default-runtime = "crun";
-        runtimes = {
-            crun = {
-                path = "/run/current-system/sw/bin/crun";
-            };
+    enable = true;
+    storageDriver = "overlay2";
+    daemon.settings = {
+      default-runtime = "crun";
+      runtimes = {
+        crun = {
+          path = "/run/current-system/sw/bin/crun";
         };
+      };
     };
   };
 
@@ -195,7 +192,7 @@ options iwlwifi power_save=1
 
   # Env variables
   environment.variables = {
-      EDITOR = "nvim";
+    EDITOR = "nvim";
     MOZ_ENABLE_WAYLAND = "1";
     MOZ_REMOTE_DBUS = "1";
     MOZ_USE_XINPUT2 = "1";
@@ -210,14 +207,25 @@ options iwlwifi power_save=1
   # Flatpak
   services.flatpak.enable = true;
 
+  # XDG Portal
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+  }
+
   # Nvidia
   services.xserver.videoDrivers = ["nvidia"];
-  hardware.opengl.enable = true;
-  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
-  hardware.nvidia.modesetting.enable = true;
-  hardware.nvidia.powerManagement = {
+  hardware.opengl = {
     enable = true;
-    finegrained = true;
+    driSupport = true;
+  };
+  hardware.nvidia = {
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    modesetting.enable = true;
+    powerManagement = {
+      enable = true;
+      finegrained = true;
+    };
   };
 
   # Supergfxctl
@@ -233,7 +241,7 @@ options iwlwifi power_save=1
 
   # Apparmor
   security.apparmor = {
-      enable = true;
+    enable = true;
     packages = with pkgs; [apparmor-pam apparmor-profiles];
   };
 
@@ -270,6 +278,7 @@ options iwlwifi power_save=1
   appstream.enable = false;
 	
   hardware.ksm.enable = true;
+
   #hardware.nvidia.prime.sync.enable = true;
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
