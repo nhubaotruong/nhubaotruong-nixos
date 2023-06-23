@@ -249,12 +249,12 @@ options iwlwifi power_save=1
   services.tailscale.enable = true;
 
   # System-resolved
-  networking.nameservers = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+  networking.nameservers = [ "45.90.28.0#5ef546.dns.nextdns.io" "2a07:a8c0::#5ef546.dns.nextdns.io" "45.90.30.0#5ef546.dns.nextdns.io" "2a07:a8c1::#5ef546.dns.nextdns.io" ];
   services.resolved = {
     enable = true;
     dnssec = "true";
     domains = [ "~." ];
-    fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+    fallbackDns = [ "45.90.28.0#5ef546.dns.nextdns.io" "2a07:a8c0::#5ef546.dns.nextdns.io" "45.90.30.0#5ef546.dns.nextdns.io" "2a07:a8c1::#5ef546.dns.nextdns.io" ];
     extraConfig = ''
       DNSOverTLS=yes
     '';
