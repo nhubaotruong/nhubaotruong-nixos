@@ -46,7 +46,7 @@ options iwlwifi power_save=1
   boot.initrd.compressorArgs = ["-19" "-T0"];
   boot.initrd.luks.devices = {
     "ROOT" = {
-      "device": "/dev/disk/by-label/CRYPTROOT";
+      "device" = "/dev/disk/by-label/CRYPTROOT";
     };
   };
 
