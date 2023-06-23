@@ -5,12 +5,9 @@
 ```console
 sudo su
 nix-channel --add https://nixos.org/channels/nixos-unstable nixos
-nix-env -iA dosfstools
 cfdisk /dev/nvme0n1
-mkfs.fat -F 32 /dev/nvme0n1p1
-fatlabel /dev/nvme0n1p1 EFI
-cryptsetup luksFormat /dev/nvme0n1p2
-cryptsetup config /dev/nvme0n1p2 --label CRYPTROOT
+mkfs.fat -F 32 -n EFI /dev/nvme0n1p1
+cryptsetup luksFormat --label CRYPTROOT /dev/nvme0n1p2
 cryptsetup open /dev/nvme0n1p2 ROOT
 mkfs.btrfs /dev/mapper/ROOT
 mount -t btrfs -o defaults,ssd,noatime,nodiratime,compress-force=zstd /dev/mapper/ROOT /mnt
