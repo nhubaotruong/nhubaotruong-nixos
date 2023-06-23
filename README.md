@@ -8,6 +8,7 @@ nix-channel --add https://nixos.org/channels/nixos-unstable nixos
 nix-env -iA dosfstools
 cfdisk /dev/nvme0n1
 mkfs.fat -F 32 /dev/nvme0n1p1
+fatlabel /dev/nvme0n1p1 EFI
 cryptsetup luksFormat /dev/nvme0n1p2
 cryptsetup config /dev/nvme0n1p2 --label CRYPTROOT
 cryptsetup open /dev/nvme0n1p2 ROOT
