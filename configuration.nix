@@ -1,5 +1,3 @@
-
-
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
@@ -217,6 +215,10 @@ options iwlwifi power_save=1
   hardware.opengl.enable = true;
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
   hardware.nvidia.modesetting.enable = true;
+  hardware.nvidia.powerManagement = {
+    enable = true;
+    finegrained = true;
+  };
 
   # Supergfxctl
   services.supergfxd.enable = true;
@@ -288,4 +290,3 @@ options iwlwifi power_save=1
   system.stateVersion = "23.05"; # Did you read the comment?
     
 }
-
