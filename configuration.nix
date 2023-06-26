@@ -36,7 +36,7 @@ in
 
   # Kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelParams = ["random.trustcpu=on" "zswap.compressor=lz4" "zswap.zpool=z3fold" "quiet" "loglevel=3" "systemd.unified_cgroup_hierarchy=1" "cryptomgr.notests" "intel_iommu=igfx_off" "kvm-intel.nested=1" "no_timer_check" "noreplace-smp" "page_alloc_shuffle=1" "rcupdate.rcu_expedited=1" "tsc=reliable" "quiet" "udev.log_level=3"];
+  boot.kernelParams = ["random.trustcpu=on" "zswap.compressor=lz4" "zswap.zpool=z3fold" "quiet" "loglevel=3" "systemd.unified_cgroup_hierarchy=1" "cryptomgr.notests" "intel_iommu=igfx_off" "kvm-intel.nested=1" "no_timer_check" "noreplace-smp" "page_alloc_shuffle=1" "rcupdate.rcu_expedited=1" "tsc=reliable" "udev.log_level=3"];
   boot.kernelModules = ["v4l2loopback"];
   boot.blacklistedKernelModules = ["iTCO_wdt"];
   boot.initrd.verbose = false;
@@ -122,9 +122,6 @@ options iwlwifi power_save=1
     xkbVariant = "";
   };
 
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
-
   # Enable sound with pipewire.
   sound.enable = true;
   hardware.pulseaudio.enable = false;
@@ -151,9 +148,6 @@ options iwlwifi power_save=1
     description = "Nhu Bao Truong";
     initialPassword = "123456";
     extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" "realtime" "i2c" "adm" "video" "kvm" "input"];
-    packages = with pkgs; [
-    #  thunderbird
-    ];
   };
 
   # Allow unfree packages
@@ -163,7 +157,7 @@ options iwlwifi power_save=1
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	  nixos-option neovim jamesdsp docker docker-compose docker-buildx gnome.gnome-tweaks gnome.file-roller rar p7zip crun tilix adw-gtk3 supergfxctl lz4 papirus-icon-theme vscode libimobiledevice usbmuxd ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin tailscale distrobox genymotion rtkit i2c-tools virt-manager sbctl teamviewer expressvpn niv neovim
+	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme vscode libimobiledevice ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv
   ];
 
   # Nix supported programs
@@ -172,7 +166,28 @@ options iwlwifi power_save=1
     git.enable = true;
     zsh.enable = true;
     xwayland.enable = true;
-    neovim.vimAlias = true;
+    neovim = {
+      enable = true;
+      vimAlias = true;
+      viAlias = true;
+      defaultEditor = true;
+    };
+    gnupg.agent = {
+      enable = true;
+      enableSSHSupport = true;
+    };
+    file-roller.enable = true;
+  };
+
+  # Services
+  services = {
+    usbmuxd.enable = true;  # Usbmuxd
+    flatpak.enable = true;  # Flatpak
+    tailscale.enable = true;  # Tailscale
+    printing.enable = true; # CUPS
+    supergfxd.enable = true; # Supergfxd
+    ddccontrol.enable = true; # DDC Control
+    chrony.enable = true; # Chrony
   };
 
   # Fonts
@@ -228,17 +243,11 @@ options iwlwifi power_save=1
     LIBVA_DRIVER_NAME = "iHD";
   };
 
-  # Flatpak
-  services.flatpak.enable = true;
-
   # Nvidia
   services.xserver.videoDrivers = ["nvidia"];
   hardware.opengl.enable = true;
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
   hardware.nvidia.modesetting.enable = true;
-
-  # Supergfxctl
-  services.supergfxd.enable = true;
 
   # Zram
   zramSwap = {
@@ -250,12 +259,9 @@ options iwlwifi power_save=1
 
   # Apparmor
   security.apparmor = {
-      enable = true;
+    enable = true;
     packages = with pkgs; [apparmor-pam apparmor-profiles];
   };
-
-  # Tailscale
-  services.tailscale.enable = true;
 
   # System-resolved
   networking.nameservers = [ "45.90.28.0#5ef546.dns.nextdns.io" "2a07:a8c0::#5ef546.dns.nextdns.io" "45.90.30.0#5ef546.dns.nextdns.io" "2a07:a8c1::#5ef546.dns.nextdns.io" ];
