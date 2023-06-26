@@ -186,7 +186,7 @@ options iwlwifi power_save=1
   environment.gnome.excludePackages = (with pkgs; [
     gnome-photos gnome-tour gnome-text-editor gnome-console gnome-connections
   ]) ++ (with pkgs.gnome; [
-    cheese gnome-terminal gedit epiphany geary evince gnome-characters totem tali iagno hitori atomix gnome-music gnome-calendar gnome-maps gnome-contacts gnome-software gnome-clocks gnome-calculator gnome-weather yelp simple-scan gnome-logs eog gnome-font-viewer seahorse 
+    cheese gnome-terminal gedit epiphany geary evince gnome-characters totem tali iagno hitori atomix gnome-music gnome-calendar gnome-maps gnome-contacts gnome-software gnome-clocks gnome-calculator gnome-weather yelp simple-scan gnome-logs eog gnome-font-viewer seahorse sushi
   ]);
   services.udev.packages = with pkgs; [gnome.gnome-settings-daemon];
   services.dbus.packages = with pkgs; [gnome2.GConf];
