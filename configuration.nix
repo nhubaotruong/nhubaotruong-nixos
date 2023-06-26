@@ -1,13 +1,19 @@
+
+
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, lib, ... }:
-
+let
+  sources = import ./sources.nix;
+  lanzaboote = import sources.lanzaboote;
+in
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      lanzaboote.nixosModules.lanzaboote
     ];
 
   # Filesystems
@@ -31,6 +37,7 @@
   # Kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.kernelParams = ["random.trustcpu=on" "zswap.compressor=lz4" "zswap.zpool=z3fold" "quiet" "loglevel=3" "systemd.unified_cgroup_hierarchy=1" "cryptomgr.notests" "intel_iommu=igfx_off" "kvm-intel.nested=1" "no_timer_check" "noreplace-smp" "page_alloc_shuffle=1" "rcupdate.rcu_expedited=1" "tsc=reliable" "quiet" "udev.log_level=3"];
+  boot.kernelModules = ["v4l2loopback"];
   boot.blacklistedKernelModules = ["iTCO_wdt"];
   boot.initrd.verbose = false;
   boot.consoleLogLevel = 0;
@@ -45,7 +52,12 @@ options iwlwifi power_save=1
   boot.initrd.luks.devices."ROOT".device = lib.mkForce "/dev/disk/by-label/CRYPTROOT";
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
+  boot.bootspec.enable = true;
+  boot.loader.systemd-boot.enable = lib.mkForce false;
+  boot.lanzaboote = {
+    enable = true;
+    pkiBundle = "/etc/secureboot";
+  };
   boot.loader.timeout = 0;
   boot.loader.efi.canTouchEfiVariables = true;
 
@@ -64,12 +76,12 @@ options iwlwifi power_save=1
 
   # Bluetooth
   hardware.bluetooth = {
-    enable = true;
+      enable = true;
     settings = {
-      General = {
-        Experimental = true;
-        KernelExperimental = "330859bc-7506-492d-9370-9a6f0614037f";
-      };
+        General = {
+            Experimental = true;
+            KernelExperimental = "330859bc-7506-492d-9370-9a6f0614037f";
+        };
     };
   };
 
@@ -139,6 +151,9 @@ options iwlwifi power_save=1
     description = "Nhu Bao Truong";
     initialPassword = "123456";
     extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" "realtime" "i2c" "adm" "video" "kvm" "input"];
+    packages = with pkgs; [
+    #  thunderbird
+    ];
   };
 
   # Allow unfree packages
@@ -148,13 +163,13 @@ options iwlwifi power_save=1
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	  nixos-option neovim jamesdsp docker docker-compose docker-buildx gnome.gnome-tweaks gnome.file-roller rar p7zip crun tilix adw-gtk3 supergfxctl lz4 papirus-icon-theme vscode libimobiledevice usbmuxd ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin git tailscale distrobox genymotion rtkit i2c-tools virt-manager
+	nixos-option neovim jamesdsp docker docker-compose docker-buildx gnome.gnome-tweaks gnome.file-roller rar p7zip crun tilix adw-gtk3 supergfxctl lz4 papirus-icon-theme vscode libimobiledevice usbmuxd ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin git tailscale distrobox genymotion rtkit i2c-tools virt-manager sbctl teamviewer expressvpn niv
   ];
 
   # Fonts
   fonts.fonts = with pkgs; [
-    joypixels noto-fonts noto-fonts-cjk corefonts liberation_ttf
-    (nerdfonts.override {fonts = ["FiraCode" "Meslo"];})
+	joypixels noto-fonts noto-fonts-cjk corefonts liberation_ttf dejavu_fonts open-sans roboto 
+	(nerdfonts.override {fonts = ["FiraCode" "Meslo"];})
   ];
   fonts.fontDir.enable = true;
 
@@ -169,15 +184,15 @@ options iwlwifi power_save=1
 
   # Docker
   virtualisation.docker = {
-    enable = true;
-    storageDriver = "overlay2";
-    daemon.settings = {
-      default-runtime = "crun";
-      runtimes = {
-        crun = {
-          path = "/run/current-system/sw/bin/crun";
+      enable = true;
+      storageDriver = "overlay2";
+      daemon.settings = {
+          default-runtime = "crun";
+        runtimes = {
+            crun = {
+                path = "/run/current-system/sw/bin/crun";
+            };
         };
-      };
     };
   };
 
@@ -192,7 +207,7 @@ options iwlwifi power_save=1
 
   # Env variables
   environment.variables = {
-    EDITOR = "nvim";
+      EDITOR = "nvim";
     MOZ_ENABLE_WAYLAND = "1";
     MOZ_REMOTE_DBUS = "1";
     MOZ_USE_XINPUT2 = "1";
@@ -207,26 +222,11 @@ options iwlwifi power_save=1
   # Flatpak
   services.flatpak.enable = true;
 
-  # XDG Portal
-  xdg.portal = {
-    enable = true;
-    xdgOpenUsePortal = true;
-  }
-
   # Nvidia
   services.xserver.videoDrivers = ["nvidia"];
-  hardware.opengl = {
-    enable = true;
-    driSupport = true;
-  };
-  hardware.nvidia = {
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
-    modesetting.enable = true;
-    powerManagement = {
-      enable = true;
-      finegrained = true;
-    };
-  };
+  hardware.opengl.enable = true;
+  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
+  hardware.nvidia.modesetting.enable = true;
 
   # Supergfxctl
   services.supergfxd.enable = true;
@@ -241,7 +241,7 @@ options iwlwifi power_save=1
 
   # Apparmor
   security.apparmor = {
-    enable = true;
+      enable = true;
     packages = with pkgs; [apparmor-pam apparmor-profiles];
   };
 
@@ -249,12 +249,12 @@ options iwlwifi power_save=1
   services.tailscale.enable = true;
 
   # System-resolved
-  networking.nameservers = [ "45.90.28.0#5ef546.dns.nextdns.io" "2a07:a8c0::#5ef546.dns.nextdns.io" "45.90.30.0#5ef546.dns.nextdns.io" "2a07:a8c1::#5ef546.dns.nextdns.io" ];
+  networking.nameservers = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
   services.resolved = {
     enable = true;
     dnssec = "true";
     domains = [ "~." ];
-    fallbackDns = [ "45.90.28.0#5ef546.dns.nextdns.io" "2a07:a8c0::#5ef546.dns.nextdns.io" "45.90.30.0#5ef546.dns.nextdns.io" "2a07:a8c1::#5ef546.dns.nextdns.io" ];
+    fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
     extraConfig = ''
       DNSOverTLS=yes
     '';
@@ -278,7 +278,7 @@ options iwlwifi power_save=1
   appstream.enable = false;
 	
   hardware.ksm.enable = true;
-
+  hardware.i2c.enable = true;
   #hardware.nvidia.prime.sync.enable = true;
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -299,3 +299,4 @@ options iwlwifi power_save=1
   system.stateVersion = "23.05"; # Did you read the comment?
     
 }
+
