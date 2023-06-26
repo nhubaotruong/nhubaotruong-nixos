@@ -24,6 +24,6 @@ nixos-generate-config --root /mnt
 ```
 4. Install nix
 ```console
-curl -L https://raw.githubusercontent.com/nhubaotruong/nhubaotruong-nixos/main/configuration.nix -o /mnt/etc/nixos/configuration.nix
+git clone https://github.com/nhubaotruong/nhubaotruong-nixos.git /etc/nixos
 nixos-install
 ```
