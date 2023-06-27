@@ -199,8 +199,8 @@ options iwlwifi power_save=1
       enableSSHSupport = true;
     };
     file-roller.enable = true;
-    # starship = {
-    #   enable = true;
+    starship = {
+      enable = true;
       # settings = {
       #   aws.symbol = " ";
       #   conda.symbol = " ";
@@ -234,7 +234,7 @@ options iwlwifi power_save=1
       #   terraform.symbol = " ";
       #   swift.symbol = "ﯣ ";
       # };
-    # };
+    };
   };
 
   # Services
