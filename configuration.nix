@@ -154,6 +154,7 @@ options iwlwifi power_save=1
     description = "Nhu Bao Truong";
     initialPassword = "123456";
     extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" "realtime" "i2c" "adm" "video" "kvm" "input"];
+    shell = pkgs.zsh;
   };
 
   # Allow unfree packages
@@ -163,13 +164,28 @@ options iwlwifi power_save=1
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme vscode libimobiledevice ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv
+	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme vscode libimobiledevice ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox bat
   ];
 
   # Nix supported programs
   programs = {
     nix-ld.enable = true;
-    git.enable = true;
+    git = {
+      enable = true;
+      config = {
+        user = {
+          name = "bao.truong";
+          email = "bao.truong@parcelperform.com";
+        };
+        core = {
+          editor = "nvim";
+          pager = "bat";
+        };
+        alias = {
+          mr = "!sh -c 'git fetch $1 merge-requests/$2/head:mr-$1-$2 && git checkout mr-$1-$2' -";
+        };
+      };
+    };
     zsh.enable = true;
     xwayland.enable = true;
     neovim = {
@@ -183,8 +199,8 @@ options iwlwifi power_save=1
       enableSSHSupport = true;
     };
     file-roller.enable = true;
-    starship = {
-      enable = true;
+    # starship = {
+    #   enable = true;
       # settings = {
       #   aws.symbol = " ";
       #   conda.symbol = " ";
@@ -218,7 +234,7 @@ options iwlwifi power_save=1
       #   terraform.symbol = " ";
       #   swift.symbol = "ﯣ ";
       # };
-    };
+    # };
   };
 
   # Services
@@ -291,12 +307,12 @@ options iwlwifi power_save=1
   hardware.opengl.enable = true;
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
   hardware.nvidia.modesetting.enable = true;
-  hardware.nvidia.powerManagement.enable = true;
-  hardware.nvidia.powerManagement.finegrained = true;
-  hardware.nvidia.prime.offload = {
+  # hardware.nvidia.powerManagement.enable = true;
+  # hardware.nvidia.powerManagement.finegrained = true;
+  # hardware.nvidia.prime.offload = {
     # enable = true;
-    enableOffloadCmd = true;
-  };
+    # enableOffloadCmd = true;
+  # };
   # hardware.nvidia.prime = {
   #   intelBusId = "PCI:0:2:0";
   #   nvidiaBusId = "PCI:3:0:0";
@@ -371,6 +387,9 @@ options iwlwifi power_save=1
 	
   hardware.ksm.enable = true;
   hardware.i2c.enable = true;
+
+  # Qt
+  qt.style = "adwaita-dark";
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
