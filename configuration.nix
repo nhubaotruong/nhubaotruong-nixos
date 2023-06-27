@@ -235,6 +235,7 @@ options iwlwifi power_save=1
       #   swift.symbol = "ﯣ ";
       # };
     };
+    npm.enable = true;
   };
 
   # Services
