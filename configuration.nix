@@ -256,6 +256,8 @@ options iwlwifi power_save=1
   hardware.opengl.enable = true;
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
   hardware.nvidia.modesetting.enable = true;
+  hardware.nvidia.powerManagement.enable = true;
+  hardware.nvidia.powerManagement.finegrained = true;
 
   # Zram
   zramSwap = {
@@ -305,6 +307,8 @@ options iwlwifi power_save=1
     };
   };
 
+  # Powertop
+  powerManagement.powertop.enable = true;
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
@@ -324,7 +328,6 @@ options iwlwifi power_save=1
   hardware.ksm.enable = true;
   hardware.i2c.enable = true;
 
-  #hardware.nvidia.prime.sync.enable = true;
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
