@@ -21,12 +21,12 @@ in
     "/" = {
       device = "/dev/mapper/ROOT";
       fsType = "btrfs";
-      options = ["subvol=@" "noatime" "nodiratime" "defaults" "ssd" "compress-force=zstd"];
+      options = ["subvol=@" "noatime" "nodiratime" "defaults" "ssd" "compress-force=zstd" "discard=async" "space_cache=v2"];
     };
     "/home" = {
       device = "/dev/mapper/ROOT";
       fsType = "btrfs";
-      options = ["subvol=@home" "noatime" "nodiratime" "defaults" "ssd" "compress-force=zstd"];
+      options = ["subvol=@home" "noatime" "nodiratime" "defaults" "ssd" "compress-force=zstd" "discard=async" "space_cache=v2"];
     };
     "/boot" = {
       device = "/dev/disk/by-label/EFI";
@@ -36,8 +36,8 @@ in
 
   # Kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelParams = ["random.trustcpu=on" "zswap.compressor=lz4" "zswap.zpool=z3fold" "quiet" "loglevel=3" "systemd.unified_cgroup_hierarchy=1" "cryptomgr.notests" "intel_iommu=igfx_off" "kvm-intel.nested=1" "no_timer_check" "noreplace-smp" "page_alloc_shuffle=1" "rcupdate.rcu_expedited=1" "tsc=reliable" "udev.log_level=3"];
-  boot.kernelModules = ["v4l2loopback"];
+  boot.kernelParams = ["random.trustcpu=on" "zswap.enabled=1" "zswap.compressor=lz4" "zswap.zpool=z3fold" "quiet" "systemd.unified_cgroup_hierarchy=1" "cryptomgr.notests" "intel_iommu=igfx_off" "kvm-intel.nested=1" "no_timer_check" "noreplace-smp" "page_alloc_shuffle=1" "rcupdate.rcu_expedited=1" "tsc=reliable" "udev.log_level=3"];
+  boot.kernelModules = ["v4l2loopback" "lz4" "z3fold"];
   boot.blacklistedKernelModules = ["iTCO_wdt"];
   boot.initrd.verbose = false;
   boot.consoleLogLevel = 0;
@@ -206,12 +206,12 @@ options iwlwifi power_save=1
 
   # GNOME
   environment.gnome.excludePackages = (with pkgs; [
-    gnome-photos gnome-tour gnome-text-editor gnome-console gnome-connections
+    gnome-photos gnome-tour gnome-text-editor gnome-console gnome-connections power-profiles-daemon
   ]) ++ (with pkgs.gnome; [
     cheese gnome-terminal gedit epiphany geary evince gnome-characters totem tali iagno hitori atomix gnome-music gnome-calendar gnome-maps gnome-contacts gnome-software gnome-clocks gnome-calculator gnome-weather yelp simple-scan gnome-logs eog gnome-font-viewer seahorse sushi
   ]);
   services.udev.packages = with pkgs; [gnome.gnome-settings-daemon];
-  services.dbus.packages = with pkgs; [gnome2.GConf];
+  services.dbus.apparmor = "enabled";
 
   # Docker
   virtualisation.docker = {
