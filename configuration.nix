@@ -65,7 +65,6 @@ options iwlwifi power_save=1
   boot.plymouth.enable = true;
 
   networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -186,39 +185,39 @@ options iwlwifi power_save=1
     file-roller.enable = true;
     starship = {
       enable = true;
-      settings = {
-        aws.symbol = " ";
-        conda.symbol = " ";
-        dart.symbol = " ";
-        directory = {
-          read_only = " ";
-          truncation_length = 0;
-          truncate_to_repo = false;
-        };
-        docker_context.symbol = " ";
-        elixir.symbol = " ";
-        elm.symbol = " ";
-        git_branch.symbol = " ";
-        golang.symbol = " ";
-        hg_branch.symbol = " ";
-        java.symbol = " ";
-        julia.symbol = " ";
-        memory_usage.symbol = " ";
-        nim.symbol = " ";
-        nix_shell.symbol = " ";
-        nodejs.symbol = " ";
-        package.symbol = " ";
-        perl.symbol = " ";
-        php.symbol = " ";
-        python = {
-          symbol = " ";
-          style = "blue bold";
-        };
-        ruby.symbol = " ";
-        rust.symbol = " ";
-        terraform.symbol = " ";
-        swift.symbol = "ﯣ ";
-      };
+      # settings = {
+      #   aws.symbol = " ";
+      #   conda.symbol = " ";
+      #   dart.symbol = " ";
+      #   directory = {
+      #     read_only = " ";
+      #     truncation_length = 0;
+      #     truncate_to_repo = false;
+      #   };
+      #   docker_context.symbol = " ";
+      #   elixir.symbol = " ";
+      #   elm.symbol = " ";
+      #   git_branch.symbol = " ";
+      #   golang.symbol = " ";
+      #   hg_branch.symbol = " ";
+      #   java.symbol = " ";
+      #   julia.symbol = " ";
+      #   memory_usage.symbol = " ";
+      #   nim.symbol = " ";
+      #   nix_shell.symbol = " ";
+      #   nodejs.symbol = " ";
+      #   package.symbol = " ";
+      #   perl.symbol = " ";
+      #   php.symbol = " ";
+      #   python = {
+      #     symbol = " ";
+      #     style = "blue bold";
+      #   };
+      #   ruby.symbol = " ";
+      #   rust.symbol = " ";
+      #   terraform.symbol = " ";
+      #   swift.symbol = "ﯣ ";
+      # };
     };
   };
 
@@ -294,6 +293,14 @@ options iwlwifi power_save=1
   hardware.nvidia.modesetting.enable = true;
   hardware.nvidia.powerManagement.enable = true;
   hardware.nvidia.powerManagement.finegrained = true;
+  hardware.nvidia.prime.offload = {
+    # enable = true;
+    enableOffloadCmd = true;
+  };
+  # hardware.nvidia.prime = {
+  #   intelBusId = "PCI:0:2:0";
+  #   nvidiaBusId = "PCI:3:0:0";
+  # };
 
   # Zram
   zramSwap = {
