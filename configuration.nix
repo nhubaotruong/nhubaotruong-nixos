@@ -72,7 +72,7 @@ options iwlwifi power_save=1
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
-  networking.networkmanager {
+  networking.networkmanager = {
     enable = true;
     dns = "systemd-resolved";
     firewallBackend = "nftables";
@@ -80,7 +80,7 @@ options iwlwifi power_save=1
       backend = "iwd";
       powersave = true;
     };
-  }
+  };
   # Bluetooth
   hardware.bluetooth = {
     enable = true;
