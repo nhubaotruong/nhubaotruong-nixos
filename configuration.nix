@@ -184,6 +184,42 @@ options iwlwifi power_save=1
       enableSSHSupport = true;
     };
     file-roller.enable = true;
+    starship = {
+      enable = true;
+      settings = {
+        aws.symbol = " ";
+        conda.symbol = " ";
+        dart.symbol = " ";
+        directory = {
+          read_only = " ";
+          truncation_length = 0;
+          truncate_to_repo = false;
+        };
+        docker_context.symbol = " ";
+        elixir.symbol = " ";
+        elm.symbol = " ";
+        git_branch.symbol = " ";
+        golang.symbol = " ";
+        hg_branch.symbol = " ";
+        java.symbol = " ";
+        julia.symbol = " ";
+        memory_usage.symbol = " ";
+        nim.symbol = " ";
+        nix_shell.symbol = " ";
+        nodejs.symbol = " ";
+        package.symbol = " ";
+        perl.symbol = " ";
+        php.symbol = " ";
+        python = {
+          symbol = " ";
+          style = "blue bold";
+        };
+        ruby.symbol = " ";
+        rust.symbol = " ";
+        terraform.symbol = " ";
+        swift.symbol = "ﯣ ";
+      };
+    };
   };
 
   # Services
@@ -309,6 +345,7 @@ options iwlwifi power_save=1
 
   # Powertop
   powerManagement.powertop.enable = true;
+  powerManagement.cpuFreqGovernor = "powersave";
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
