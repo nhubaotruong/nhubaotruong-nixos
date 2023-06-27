@@ -164,7 +164,7 @@ options iwlwifi power_save=1
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme vscode libimobiledevice ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox bat
+	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme vscode libimobiledevice ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox bat nodejs breeze-qt5 appimage-run
   ];
 
   # Nix supported programs
@@ -248,6 +248,7 @@ options iwlwifi power_save=1
     ddccontrol.enable = true; # DDC Control
     chrony.enable = true; # Chrony
     power-profiles-daemon.enable = false; # Power Profiles Daemon
+    envfs.enable = true; # Envfs
   };
 
   # Fonts
@@ -273,7 +274,7 @@ options iwlwifi power_save=1
     daemon.settings = {
       default-runtime = "crun";
       runtimes = {
-        crun = {
+         crun = {
           path = "/run/current-system/sw/bin/crun";
         };
       };
