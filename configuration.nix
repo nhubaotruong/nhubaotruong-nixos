@@ -10,6 +10,13 @@ let
   lanzaboote = import sources.lanzaboote;
 in
 {
+  # Nix User Repository
+  nixpkgs.config.packageOverrides = pkgs: {
+    nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
+      inherit pkgs;
+    };
+  };
+
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
@@ -36,9 +43,12 @@ in
 
   # Kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelParams = ["random.trustcpu=on" "zswap.enabled=1" "zswap.compressor=lz4" "zswap.zpool=z3fold" "quiet" "systemd.unified_cgroup_hierarchy=1" "cryptomgr.notests" "intel_iommu=igfx_off" "kvm-intel.nested=1" "no_timer_check" "noreplace-smp" "page_alloc_shuffle=1" "rcupdate.rcu_expedited=1" "tsc=reliable" "udev.log_level=3"];
+  boot.kernelParams = ["nowatchdog" "random.trustcpu=on" "zswap.enabled=1" "zswap.compressor=lz4" "zswap.zpool=z3fold" "quiet" "systemd.unified_cgroup_hierarchy=1" "cryptomgr.notests" "intel_iommu=igfx_off" "kvm-intel.nested=1" "no_timer_check" "noreplace-smp" "page_alloc_shuffle=1" "rcupdate.rcu_expedited=1" "tsc=reliable" "udev.log_level=3"];
+  boot.extraModulePackages = with config.boot.kernelPackages; [
+    v4l2loopback
+  ];
   boot.kernelModules = ["v4l2loopback" "lz4" "z3fold"];
-  boot.blacklistedKernelModules = ["iTCO_wdt"];
+  boot.blacklistedKernelModules = ["iTCO_wdt" "nouveau"];
   boot.initrd.verbose = false;
   boot.consoleLogLevel = 0;
   boot.extraModprobeConfig = ''
@@ -60,6 +70,7 @@ options iwlwifi power_save=1
   };
   boot.loader.timeout = 0;
   boot.loader.efi.canTouchEfiVariables = true;
+  hardware.cpu.intel.updateMicrocode = true;
 
   # Plymouth
   boot.plymouth.enable = true;
@@ -164,7 +175,7 @@ options iwlwifi power_save=1
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme vscode libimobiledevice ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox bat nodejs breeze-qt5 appimage-run
+	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme vscode libimobiledevice ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox bat nodejs breeze-qt5 appimage-run tpm2-tss steam-run
   ];
 
   # Nix supported programs
@@ -252,11 +263,17 @@ options iwlwifi power_save=1
   };
 
   # Fonts
-  fonts.fonts = with pkgs; [
-    joypixels noto-fonts noto-fonts-cjk corefonts liberation_ttf dejavu_fonts open-sans roboto 
+  fonts.fonts = (with pkgs; [
+    joypixels noto-fonts noto-fonts-cjk noto-fonts-emoji corefonts liberation_ttf dejavu_fonts open-sans roboto 
     (nerdfonts.override {fonts = ["FiraCode" "Meslo"];})
-  ];
+  ]) ++ (with pkgs.nur.repos; [
+    rewine.ttf-ms-win10 sagikazarmark.sf-pro
+  ]);
   fonts.fontDir.enable = true;
+  fonts.fontconfig = {
+    defaultFonts.emoji = ["JoyPixels" "Noto Color Emoji"];
+    allowBitmaps = false;
+  };
 
   # GNOME
   environment.gnome.excludePackages = (with pkgs; [
@@ -393,15 +410,30 @@ options iwlwifi power_save=1
   # Qt
   qt.style = "adwaita-dark";
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-  #networking.firewall = {
-  #  enable = true;
-  #  allowedTCPPortRanges = []
-  #};
+  # Tpm2
+  security.tpm2.enable = true;
+  
+  # Firewall
+  networking.firewall = {
+    enable = true;
+    allowedTCPPortRanges = [
+      {
+        from = 1714;
+        to = 1764;
+      }
+    ];
+    allowedUDPPortRanges = [
+      {
+        from = 1714;
+        to = 1764;
+      }
+    ];
+  };
+
+  # Garbage collect
+  nix.gc = {
+    automatic = true;
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
