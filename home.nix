@@ -104,63 +104,9 @@
         autoload -Uz +X bashcompinit && bashcompinit
       '';
       initExtra = ''
-        get_scraper_pod() {
-          kubectl get pod -n pp-scraper --no-headers | grep Running | grep -m1 'scheduling-trial' | awk '{print $1}'
-        }
-        reset_scraper_throttle() {
-          kubectl -n pp-scraper exec -it "$(get_scraper_pod)" -- python scripts/reset_scraper_throttle.py
-        }
-        scraper_pod() {
-          kubectl -n pp-scraper exec -it "$(get_scraper_pod)" -- su
-        }
-        source <(kubectl completion zsh)
-        ssm() {
-          while [[ $# -gt 0 ]]; do
-            local key="$1"
-            case $key in
-              --profile)
-              local PROFILE="$2"
-              shift 2
-              ;;
-              --region)
-              local REGION="$2"
-              shift 2
-              ;;
-              *)
-              echo "Invalid argument: $1" >&2
-              return 1
-              ;;
-            esac
-          done
-
-          if [ -z "$PROFILE" ]; then
-            local PROFILE="$(aws configure list-profiles | fzf)"
-          fi
-
-          if [ -z "$REGION" ]; then
-            if [ -n "$AWS_REGION" ]; then
-              local REGION="$AWS_REGION"
-            else
-              local _region="$(aws configure get region --profile $PROFILE)"
-              if [ -n "$_region" ]; then
-                local REGION="$_region"
-              else
-                echo "AWS region is not set"
-                return 1
-              fi
-            fi
-          fi
-
-          local INSTANCE=$(aws ec2 describe-instances --filter "Name=tag:allow,Values=ssm" --profile "$PROFILE" --region "$REGION" --query 'Reservations[].Instances[].{Name: Tags[?Key==`Name`].Value | [0], InstanceID: InstanceId }' --output text | fzf | awk '{print $1}')
-
-          if [ -z "$INSTANCE" ]; then
-            echo "No instance selected"
-            return 1
-          else
-            echo "Connecting to instance: $INSTANCE with profile $PROFILE, region $REGION"
-            aws ssm start-session --target "$INSTANCE" --profile "$PROFILE" --region "$REGION"
-          fi
-        }
+      if [ -f ~/.zshrc.old ]; then
+        source ~/.zshrc.old
+      fi
       '';
     };
     neovim = {
