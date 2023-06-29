@@ -101,6 +101,18 @@ in
         plugins = ["git" "sudo" "docker" "docker-compose"];
       };
       historySubstringSearch.enable = true;
+      # plugins = [
+      #   {
+      #     name = "zsh-nix-shell";
+      #     file = "nix-shell.plugin.zsh";
+      #     src = pkgs.fetchFromGitHub {
+      #       owner = "chisui";
+      #       repo = "zsh-nix-shell";
+      #       rev = "master";
+      #       sha256 = lib.fakeSha256;
+      #     };
+      #   }
+      # ];
       completionInit = ''
         autoload -Uz +X compinit && compinit
         autoload -Uz +X bashcompinit && bashcompinit
