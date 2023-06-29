@@ -1,5 +1,7 @@
 { config, pkgs, lib, ... }:
-
+let 
+  symlink = config.lib.file.mkOutOfStoreSymlink;
+in
 {
   home.username = "nhubao";
   home.homeDirectory = "/home/nhubao";
@@ -162,7 +164,14 @@
     fzf.enable = true;
     vscode = {
       enable = true;
-      package = pkgs.vscode-fhs;
+      package = pkgs.vscode;
     };
+  };
+  home.file = {
+    "${config.home.homeDirectory}/.config/nvim".source = symlink "${config.home.homeDirectory}/.backup/nvim"; 
+    "${config.home.homeDirectory}/.aws".source = symlink "${config.home.homeDirectory}/.backup/aws";
+    "${config.home.homeDirectory}/.kube".source = symlink "${config.home.homeDirectory}/.backup/kube";
+    "${config.home.homeDirectory}/.ssh".source = symlink "${config.home.homeDirectory}/.backup/.ssh";
+    "${config.home.homeDirectory}/.docker".source = symlink "${config.home.homeDirectory}/.backup/.docker";
   };
 }

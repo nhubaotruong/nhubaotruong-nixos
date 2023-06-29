@@ -74,6 +74,11 @@ options iwlwifi power_save=1
   boot.loader.efi.canTouchEfiVariables = true;
   hardware.cpu.intel.updateMicrocode = true;
 
+  # Sysctl
+  boot.kernel.sysctl = {
+    "vm.max_map_count" = 2147483642;
+  };
+
   # Plymouth
   boot.plymouth.enable = true;
 
@@ -199,7 +204,7 @@ options iwlwifi power_save=1
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks gnome.gvfs gnome.dconf-editor rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme libimobiledevice ripgrep ripgrep-all kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox breeze-qt5 appimage-run tpm2-tss steam-run
+	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks gnome.gvfs gnome.dconf-editor rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme libimobiledevice ripgrep ripgrep-all kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox breeze-qt5 appimage-run tpm2-tss steam-run gcc python3 nodejs
   ];
 
   # Services
@@ -245,6 +250,14 @@ options iwlwifi power_save=1
     glib-networking.enable = true;
     evolution-data-server.enable = true;
     gnome-online-accounts.enable = true;
+  };
+  systemd.user.services."org.gnome.Shell@wayland".serviceConfig = {
+    CPUSchedulingPolicy = "fifo";
+    CPUSchedulingResetOnFork = true;
+  };
+  systemd.user.services."org.gnome.Shell@x11".serviceConfig = {
+    CPUSchedulingPolicy = "fifo";
+    CPUSchedulingResetOnFork = true;
   };
 
   # Docker
