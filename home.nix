@@ -43,6 +43,32 @@
       window-size = lib.hm.gvariant.mkTuple [1200 800];
     };
   };
+  xdg = {
+    enable = true;
+    desktopEntries = {
+      code = {
+        categories = ["Utility" "TextEditor" "Development" "IDE"];
+        comment = "Code Editing. Redefined.";
+        exec = "env GTK_USE_PORTAL=1 code --unity-launch %F";
+        genericName = "Text Editor";
+        icon = "code";
+        settings = {
+          Keywords = "vscode";
+          StartupWMClass = "Code";
+        };
+        mimeType = ["text/plain" "inode/directory"];
+        name = "Visual Studio Code";
+        startupNotify = true;
+        actions = {
+          new-empty-window = {
+            exec = "env GTK_USE_PORTAL=1 code --new-window %F";
+            icon = "code";
+            name = "New Empty Window";
+          };
+        };
+      };
+    };
+  };
   programs = {
     home-manager.enable = true;
     git = {
@@ -188,5 +214,9 @@
     btop.enable = true;
     bat.enable = true;
     fzf.enable = true;
+    vscode = {
+      enable = true;
+      package = pkgs.vscode-fhs;
+    };
   };
 }
