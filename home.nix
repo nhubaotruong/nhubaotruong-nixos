@@ -166,6 +166,14 @@ in
       enable = true;
       package = pkgs.vscode;
     };
+    mpv = {
+      enable = true;
+      config = {
+        vo = "gpu";
+        hwdec = "vaapi-copy";
+        ao = "pipewire,pulse";
+      };
+    };
   };
   home.file = {
     "${config.home.homeDirectory}/.config/nvim".source = symlink "${config.home.homeDirectory}/.backup/nvim"; 
