@@ -181,5 +181,6 @@ in
     "${config.home.homeDirectory}/.kube".source = symlink "${config.home.homeDirectory}/.backup/kube";
     "${config.home.homeDirectory}/.ssh".source = symlink "${config.home.homeDirectory}/.backup/.ssh";
     "${config.home.homeDirectory}/.docker".source = symlink "${config.home.homeDirectory}/.backup/.docker";
+    "${config.home.homeDirectory}/.zshrc.old".source = symlink "${config.home.homeDirectory}/.backup/.zshrc";
   };
 }
