@@ -8,6 +8,7 @@
 let
   sources = import ./sources.nix;
   lanzaboote = import sources.lanzaboote;
+  home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/master.tar.gz";
 in
 {
   # Nix User Repository
@@ -21,6 +22,7 @@ in
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       lanzaboote.nixosModules.lanzaboote
+      (import "${home-manager}/nixos")
     ];
 
   # Filesystems
@@ -167,6 +169,28 @@ options iwlwifi power_save=1
     extraGroups = [ "networkmanager" "wheel" "docker" "libvirtd" "realtime" "i2c" "adm" "video" "kvm" "input"];
     shell = pkgs.zsh;
   };
+  home-manager = {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    users.nhubao = import ./home.nix;
+  };
+  environment.pathsToLink = [ "/share/zsh" "/share/bash-completion" ];
+
+  # Nix-env programs
+  programs = {
+    zsh.enable = true;
+    nix-ld.enable = true;
+    xwayland.enable = true;
+    gnupg.agent = {
+      enable = true;
+      enableSSHSupport = true;
+    };
+    file-roller.enable = true;
+    kdeconnect = {
+      enable = true;
+      package = pkgs.gnomeExtensions.gsconnect;
+    };
+  };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -175,79 +199,8 @@ options iwlwifi power_save=1
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme vscode libimobiledevice ripgrep ripgrep-all lsd kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox bat nodejs breeze-qt5 appimage-run tpm2-tss steam-run
+	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme vscode libimobiledevice ripgrep ripgrep-all kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox breeze-qt5 appimage-run tpm2-tss steam-run
   ];
-
-  # Nix supported programs
-  programs = {
-    nix-ld.enable = true;
-    git = {
-      enable = true;
-      config = {
-        user = {
-          name = "bao.truong";
-          email = "bao.truong@parcelperform.com";
-        };
-        core = {
-          editor = "nvim";
-          pager = "bat";
-        };
-        alias = {
-          mr = "!sh -c 'git fetch $1 merge-requests/$2/head:mr-$1-$2 && git checkout mr-$1-$2' -";
-        };
-      };
-    };
-    zsh.enable = true;
-    xwayland.enable = true;
-    neovim = {
-      enable = true;
-      vimAlias = true;
-      viAlias = true;
-      defaultEditor = true;
-    };
-    gnupg.agent = {
-      enable = true;
-      enableSSHSupport = true;
-    };
-    file-roller.enable = true;
-    starship = {
-      enable = true;
-      # settings = {
-      #   aws.symbol = " ";
-      #   conda.symbol = " ";
-      #   dart.symbol = " ";
-      #   directory = {
-      #     read_only = " ";
-      #     truncation_length = 0;
-      #     truncate_to_repo = false;
-      #   };
-      #   docker_context.symbol = " ";
-      #   elixir.symbol = " ";
-      #   elm.symbol = " ";
-      #   git_branch.symbol = " ";
-      #   golang.symbol = " ";
-      #   hg_branch.symbol = " ";
-      #   java.symbol = " ";
-      #   julia.symbol = " ";
-      #   memory_usage.symbol = " ";
-      #   nim.symbol = " ";
-      #   nix_shell.symbol = " ";
-      #   nodejs.symbol = " ";
-      #   package.symbol = " ";
-      #   perl.symbol = " ";
-      #   php.symbol = " ";
-      #   python = {
-      #     symbol = " ";
-      #     style = "blue bold";
-      #   };
-      #   ruby.symbol = " ";
-      #   rust.symbol = " ";
-      #   terraform.symbol = " ";
-      #   swift.symbol = "ﯣ ";
-      # };
-    };
-    npm.enable = true;
-  };
 
   # Services
   services = {
@@ -259,7 +212,8 @@ options iwlwifi power_save=1
     ddccontrol.enable = true; # DDC Control
     chrony.enable = true; # Chrony
     power-profiles-daemon.enable = false; # Power Profiles Daemon
-    envfs.enable = true; # Envfs
+    # envfs.enable = true; # Envfs
+    fstrim.enable = true; # Fstrim
   };
 
   # Fonts
@@ -283,16 +237,26 @@ options iwlwifi power_save=1
   ]);
   services.udev.packages = with pkgs; [gnome.gnome-settings-daemon];
   services.dbus.apparmor = "enabled";
+  services.gnome = {
+    gnome-keyring.enable = true;
+    gnome-user-share.enable = true;
+    gnome-settings-daemon.enable = true;
+    gnome-remote-desktop.enable = true;
+    glib-networking.enable = true;
+    evolution-data-server.enable = true;
+    gnome-online-accounts.enable = true;
+  };
 
   # Docker
   virtualisation.docker = {
     enable = true;
     storageDriver = "overlay2";
+    autoPrune.enable = true;
     daemon.settings = {
       default-runtime = "crun";
       runtimes = {
-         crun = {
-          path = "/run/current-system/sw/bin/crun";
+        crun = {
+          path = "${pkgs.crun}/bin/crun";
         };
       };
     };
@@ -305,6 +269,7 @@ options iwlwifi power_save=1
   virtualisation.podman = {
     enable = true;
     defaultNetwork.settings = { dns_enabled = true; };
+    autoPrune.enable = true;
   };
 
   # Env variables
@@ -416,18 +381,6 @@ options iwlwifi power_save=1
   # Firewall
   networking.firewall = {
     enable = true;
-    allowedTCPPortRanges = [
-      {
-        from = 1714;
-        to = 1764;
-      }
-    ];
-    allowedUDPPortRanges = [
-      {
-        from = 1714;
-        to = 1764;
-      }
-    ];
   };
 
   # Garbage collect
