@@ -98,6 +98,8 @@
       };
     };
   };
+  # Hardware acceleration
+  hardware.opengl.extraPackages = with pkgs; [intel-media-driver intel-ocl intel-media-sdk intel-vaapi-driver];
 
   # Set your time zone.
   time.timeZone = "Asia/Ho_Chi_Minh";
