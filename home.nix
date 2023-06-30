@@ -47,6 +47,12 @@ in
     "org/gnome/mutter" = {
       experimental-features = ["rt-scheduler"];
     };
+    "org/gnome/desktop/peripherals/touchpad" = {
+      natural-scroll = false;
+      tap-to-click = true;
+      two-finger-scrolling-enabled = true;
+      speed = 0.2;
+    };
   };
   xdg = {
     enable = true;
