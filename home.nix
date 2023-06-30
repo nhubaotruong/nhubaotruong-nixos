@@ -203,5 +203,6 @@ in
     "${config.home.homeDirectory}/.ssh".source = symlink "${config.home.homeDirectory}/.backup/.ssh";
     "${config.home.homeDirectory}/.docker".source = symlink "${config.home.homeDirectory}/.backup/.docker";
     "${config.home.homeDirectory}/.zshrc.old".source = symlink "${config.home.homeDirectory}/.backup/.zshrc";
+    "/var/lib/tailscale".source = symlink "${config.home.homeDirectory}/.backup/tailscale";
   };
 }
