@@ -54,10 +54,10 @@ in
   boot.initrd.verbose = false;
   boot.consoleLogLevel = 0;
   boot.extraModprobeConfig = ''
-options ec_sys write_support=1
-options overlay metacopy=off redirect_dir=off
-options i915 enable_fbc=1 fastboot=1 modeset=1 enable_gvt=1
-options iwlwifi power_save=1
+  options ec_sys write_support=1
+  options overlay metacopy=off redirect_dir=off
+  options i915 enable_fbc=1 fastboot=1 modeset=1 enable_gvt=1
+  options iwlwifi power_save=1
   '';
   boot.initrd.compressor = "zstd";
   boot.initrd.compressorArgs = ["-19" "-T0"];
@@ -400,6 +400,35 @@ options iwlwifi power_save=1
   nix.gc = {
     automatic = true;
   };
+
+  # Realtime-priviliges
+  users.groups = {
+    realtime = {};
+  };
+  security.pam.loginLimits = [
+    {
+      domain = "@realtime";
+      type   = "-";
+      item   = "rtprio";
+      value  = "98";
+    }
+    {
+      domain = "@realtime";
+      type   = "-";
+      item   = "memlock";
+      value  = "unlimited";
+    }
+    {
+      domain = "@realtime";
+      type   = "-";
+      item   = "nice";
+      value  = "-11";
+    }
+  ];
+  services.udev.extraRules = ''
+  # rw access to /dev/cpu_dma_latency to prevent CPUs from going into idle state
+  KERNEL=="cpu_dma_latency", GROUP="realtime"
+  '';
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

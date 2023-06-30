@@ -44,6 +44,9 @@ in
       view-type = "list";
       window-size = lib.hm.gvariant.mkTuple [1200 800];
     };
+    "org/gnome/mutter" = {
+      experimental-features = ["rt-scheduler"];
+    };
   };
   xdg = {
     enable = true;
