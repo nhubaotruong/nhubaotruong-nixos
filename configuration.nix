@@ -376,7 +376,7 @@
   hardware.i2c.enable = true;
 
   # Qt
-  qt.style = "adwaita-dark";
+  qt.platformTheme = "gnome";
 
   # Tpm2
   security.tpm2.enable = true;
