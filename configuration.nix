@@ -72,7 +72,7 @@
   # Plymouth
   boot.plymouth.enable = true;
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "Kappa-Linux"; # Define your hostname.
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
