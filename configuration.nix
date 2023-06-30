@@ -4,25 +4,15 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, ... }:
-let
-  sources = import ./sources.nix;
-  lanzaboote = import sources.lanzaboote;
-  home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/master.tar.gz";
-in
-{
-  # Nix User Repository
-  nixpkgs.config.packageOverrides = pkgs: {
-    nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
-      inherit pkgs;
-    };
-  };
+{ config, pkgs, lib, home-manager, lanzaboote, nur, ... }:
 
+{
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       lanzaboote.nixosModules.lanzaboote
-      (import "${home-manager}/nixos")
+      home-manager.nixosModules.default
+      nur.nixosModules.nur
     ];
 
   # Filesystems
@@ -225,7 +215,7 @@ in
   fonts.fonts = (with pkgs; [
     joypixels noto-fonts noto-fonts-cjk noto-fonts-emoji corefonts liberation_ttf dejavu_fonts open-sans roboto 
     (nerdfonts.override {fonts = ["FiraCode" "Meslo"];})
-  ]) ++ (with pkgs.nur.repos; [
+  ]) ++ (with config.nur.repos; [
     rewine.ttf-ms-win10 sagikazarmark.sf-pro
   ]);
   fonts.fontDir.enable = true;
@@ -430,6 +420,8 @@ in
   KERNEL=="cpu_dma_latency", GROUP="realtime"
   '';
 
+  # Experimental
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave

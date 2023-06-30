@@ -24,6 +24,5 @@ nixos-generate-config --root /mnt
 ```
 4. Install nix
 ```console
-git clone https://github.com/nhubaotruong/nhubaotruong-nixos.git /etc/nixos
-nixos-install
+nixos-install --impure --flake https://github.com/nhubaotruong/nhubaotruong-nixos#Kappa-Linux
 ```
