@@ -60,6 +60,7 @@
     "random.trustcpu=on"
     "zswap.enabled=1"
     "quiet"
+    "cgroup_no_v1=all"
     "systemd.unified_cgroup_hierarchy=1"
     "cryptomgr.notests"
     "intel_iommu=igfx_off"
@@ -414,14 +415,22 @@
   };
 
   # System-resolved
-  #networking.nameservers = [ "45.90.28.0#5ef546.dns.nextdns.io" "2a07:a8c0::#5ef546.dns.nextdns.io" "45.90.30.0#5ef546.dns.nextdns.io" "2a07:a8c1::#5ef546.dns.nextdns.io" ];
-  networking.nameservers =
-    [ "9.9.9.9" "149.112.112.112" "2620:fe::fe" "2620:fe::9" ];
+  networking.nameservers = [
+    "45.90.28.0#5ef546.dns.nextdns.io"
+    "2a07:a8c0::#5ef546.dns.nextdns.io"
+    "45.90.30.0#5ef546.dns.nextdns.io"
+    "2a07:a8c1::#5ef546.dns.nextdns.io"
+  ];
   services.resolved = {
     enable = true;
     dnssec = "true";
     domains = [ "~." ];
-    #fallbackDns = [ "45.90.28.0#5ef546.dns.nextdns.io" "2a07:a8c0::#5ef546.dns.nextdns.io" "45.90.30.0#5ef546.dns.nextdns.io" "2a07:a8c1::#5ef546.dns.nextdns.io" ];
+    fallbackDns = [
+      "9.9.9.9#dns.quad9.net"
+      "2620:fe::fe#dns.quad9.net"
+      "149.112.112.112#dns.quad9.net"
+      "2620:fe::9#dns.quad9.net"
+    ];
     extraConfig = ''
       DNSOverTLS=yes
     '';
@@ -528,6 +537,21 @@
     dates = "*-*-* 20:00:00";
     flake = "/home/nhubao/Documents/nhubaotruong-nixos#Kappa-Linux";
   };
+
+  # Prioritize user process
+  systemd = {
+    extraConfig = ''
+      DefaultCPUAccounting=yes
+      DefaultMemoryAccounting=yes
+      DefaultIOAccounting=yes
+    '';
+    user.extraConfig = ''
+      DefaultCPUAccounting=yes
+      DefaultMemoryAccounting=yes
+      DefaultIOAccounting=yes
+    '';
+  };
+  systemd.services."user@".serviceConfig.Delegate = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
