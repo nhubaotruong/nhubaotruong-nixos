@@ -197,10 +197,14 @@ in
       };
     };
   };
+  home.shellAliases = {
+    "k" = "kubectl";
+    "rm" = "rip";
+  };
   home.file = {
     "${config.home.homeDirectory}/.config/nvim".source = symlink "${config.home.homeDirectory}/.backup/nvim"; 
-    "${config.home.homeDirectory}/.aws".source = symlink "${config.home.homeDirectory}/.backup/aws";
-    "${config.home.homeDirectory}/.kube".source = symlink "${config.home.homeDirectory}/.backup/kube";
+    "${config.home.homeDirectory}/.aws".source = symlink "${config.home.homeDirectory}/.backup/.aws";
+    "${config.home.homeDirectory}/.kube".source = symlink "${config.home.homeDirectory}/.backup/.kube";
     "${config.home.homeDirectory}/.ssh".source = symlink "${config.home.homeDirectory}/.backup/.ssh";
     "${config.home.homeDirectory}/.docker".source = symlink "${config.home.homeDirectory}/.backup/.docker";
     "${config.home.homeDirectory}/.zshrc.old".source = symlink "${config.home.homeDirectory}/.backup/.zshrc";

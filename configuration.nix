@@ -10,6 +10,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./packages.nix
       lanzaboote.nixosModules.lanzaboote
       #bootspec-secureboot.nixosModules.bootspec-secureboot
       home-manager.nixosModules.default
@@ -218,11 +219,8 @@
   nixpkgs.config.joypixels.acceptLicense = true;
 
   # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks gnome.gvfs gnome.dconf-editor rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme libimobiledevice ripgrep ripgrep-all kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox breeze-qt5 appimage-run tpm2-tss steam-run gcc python3 nodejs wl-clipboard gnome.nautilus-python intel-gpu-tools gnome.gnome-screenshot
-  ];
-
+  # $ nix search wget 
+	
   # Services
   services = {
     usbmuxd.enable = true;  # Usbmuxd
@@ -397,7 +395,7 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
+  #services.openssh.enable = true;
 
   # Appstream
   appstream.enable = false;
@@ -455,6 +453,9 @@
   
   # Flatpak workaround
   system.fsPackages = [ pkgs.bindfs ];
+  
+  # Steam udev rules
+  hardware.steam-hardware.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
