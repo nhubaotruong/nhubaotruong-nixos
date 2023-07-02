@@ -11,21 +11,19 @@
       url = "github:nix-community/lanzaboote";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    #bootspec-secureboot = {
-    #  url = "github:DeterminateSystems/bootspec-secureboot/main";
-    #  inputs.nixpkgs.follows = "nixpkgs";
-    #};
     nur.url = "github:nix-community/NUR";
   };
-  outputs = { self, nixpkgs, ... }@attrs: {
-      nixosConfigurations = {
-        Kappa-Linux = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = attrs;
-          modules = [
-            ./configuration.nix
-          ];
-        };
+  outputs = { self, nixpkgs, lanzaboote, home-manager, nur, ... }: {
+    nixosConfigurations = {
+      Kappa-Linux = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./configuration.nix
+          lanzaboote.nixosModules.lanzaboote
+          home-manager.nixosModules.default
+          nur.nixosModules.nur
+        ];
       };
     };
+  };
 }

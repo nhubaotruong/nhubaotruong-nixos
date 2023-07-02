@@ -1,7 +1,5 @@
 { config, pkgs, lib, ... }:
-let 
-  symlink = config.lib.file.mkOutOfStoreSymlink;
-in
+
 {
   home.username = "nhubao";
   home.homeDirectory = "/home/nhubao";
@@ -12,9 +10,7 @@ in
   };
   fonts.fontconfig.enable = true;
   dconf.settings = {
-    "org/gnome/shell" = {
-      disable-extension-version-validation = true;
-    };
+    "org/gnome/shell" = { disable-extension-version-validation = true; };
     "org/gtk/gtk4/settings/file-chooser" = {
       clock-format = "12h";
       date-format = "regular";
@@ -28,7 +24,7 @@ in
       sort-order = "ascending";
       type-format = "category";
       view-type = "list";
-      window-size = lib.hm.gvariant.mkTuple [1200 800];
+      window-size = lib.hm.gvariant.mkTuple [ 1200 800 ];
     };
     "org/gtk/settings/file-chooser" = {
       clock-format = "12h";
@@ -43,11 +39,9 @@ in
       sort-order = "ascending";
       type-format = "category";
       view-type = "list";
-      window-size = lib.hm.gvariant.mkTuple [1200 800];
+      window-size = lib.hm.gvariant.mkTuple [ 1200 800 ];
     };
-    "org/gnome/mutter" = {
-      experimental-features = ["rt-scheduler"];
-    };
+    "org/gnome/mutter" = { experimental-features = [ "rt-scheduler" ]; };
     "org/gnome/desktop/peripherals/touchpad" = {
       natural-scroll = false;
       tap-to-click = true;
@@ -59,7 +53,7 @@ in
     enable = true;
     desktopEntries = {
       code = {
-        categories = ["Utility" "TextEditor" "Development" "IDE"];
+        categories = [ "Utility" "TextEditor" "Development" "IDE" ];
         comment = "Code Editing. Redefined.";
         exec = "env GTK_USE_PORTAL=1 code --unity-launch %F";
         genericName = "Text Editor";
@@ -68,7 +62,7 @@ in
           Keywords = "vscode";
           StartupWMClass = "code-url-handler";
         };
-        mimeType = ["text/plain" "inode/directory"];
+        mimeType = [ "text/plain" "inode/directory" ];
         name = "Visual Studio Code";
         startupNotify = true;
         actions = {
@@ -88,7 +82,8 @@ in
       userName = "bao.truong";
       userEmail = "bao.truong@parcelperform.com";
       aliases = {
-        mr = "!sh -c 'git fetch $1 merge-requests/$2/head:mr-$1-$2 && git checkout mr-$1-$2' -";
+        mr =
+          "!sh -c 'git fetch $1 merge-requests/$2/head:mr-$1-$2 && git checkout mr-$1-$2' -";
       };
       extraConfig = {
         core = {
@@ -97,9 +92,7 @@ in
         };
       };
     };
-    bash = {
-      enable = true;
-    };
+    bash = { enable = true; };
     zsh = {
       enable = true;
       autocd = true;
@@ -108,29 +101,17 @@ in
       enableVteIntegration = true;
       oh-my-zsh = {
         enable = true;
-        plugins = ["git" "sudo" "docker" "docker-compose"];
+        plugins = [ "git" "sudo" "docker" "docker-compose" ];
       };
       historySubstringSearch.enable = true;
-      # plugins = [
-      #   {
-      #     name = "zsh-nix-shell";
-      #     file = "nix-shell.plugin.zsh";
-      #     src = pkgs.fetchFromGitHub {
-      #       owner = "chisui";
-      #       repo = "zsh-nix-shell";
-      #       rev = "master";
-      #       sha256 = lib.fakeSha256;
-      #     };
-      #   }
-      # ];
       completionInit = ''
         autoload -Uz +X compinit && compinit
         autoload -Uz +X bashcompinit && bashcompinit
       '';
       initExtra = ''
-      if [ -f ~/.zshrc.old ]; then
-        source ~/.zshrc.old
-      fi
+        if [ -f ~/.zshrc.old ]; then
+          source ~/.zshrc.old
+        fi
       '';
     };
     neovim = {
@@ -186,7 +167,7 @@ in
     fzf.enable = true;
     vscode = {
       enable = true;
-      package = pkgs.vscode-fhs;
+      package = pkgs.vscode;
     };
     mpv = {
       enable = true;
@@ -200,13 +181,22 @@ in
   home.shellAliases = {
     "k" = "kubectl";
     "rm" = "rip";
+    "grep" = "rga";
+    "docker-compose" = "docker-compose --compatibility";
   };
-  home.file = {
-    "${config.home.homeDirectory}/.config/nvim".source = symlink "${config.home.homeDirectory}/.backup/nvim"; 
-    "${config.home.homeDirectory}/.aws".source = symlink "${config.home.homeDirectory}/.backup/.aws";
-    "${config.home.homeDirectory}/.kube".source = symlink "${config.home.homeDirectory}/.backup/.kube";
-    "${config.home.homeDirectory}/.ssh".source = symlink "${config.home.homeDirectory}/.backup/.ssh";
-    "${config.home.homeDirectory}/.docker".source = symlink "${config.home.homeDirectory}/.backup/.docker";
-    "${config.home.homeDirectory}/.zshrc.old".source = symlink "${config.home.homeDirectory}/.backup/.zshrc";
+  home.file = let symlink = config.lib.file.mkOutOfStoreSymlink;
+  in {
+    "${config.home.homeDirectory}/.config/nvim".source =
+      symlink "${config.home.homeDirectory}/.backup/nvim";
+    "${config.home.homeDirectory}/.aws".source =
+      symlink "${config.home.homeDirectory}/.backup/.aws";
+    "${config.home.homeDirectory}/.kube".source =
+      symlink "${config.home.homeDirectory}/.backup/.kube";
+    "${config.home.homeDirectory}/.ssh".source =
+      symlink "${config.home.homeDirectory}/.backup/.ssh";
+    "${config.home.homeDirectory}/.docker".source =
+      symlink "${config.home.homeDirectory}/.backup/.docker";
+    "${config.home.homeDirectory}/.zshrc.old".source =
+      symlink "${config.home.homeDirectory}/.backup/.zshrc";
   };
 }
