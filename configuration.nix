@@ -11,12 +11,24 @@
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       lanzaboote.nixosModules.lanzaboote
+      #bootspec-secureboot.nixosModules.bootspec-secureboot
       home-manager.nixosModules.default
       nur.nixosModules.nur
     ];
 
   # Filesystems
-  fileSystems = lib.mkForce {
+  fileSystems = let
+    mkRoSymBind = path: {
+      device = path;
+      fsType = "fuse.bindfs";
+      options = [ "ro" "resolve-symlinks" "x-gvfs-hide" ];
+    };
+    aggregatedFonts = pkgs.buildEnv {
+      name = "system-fonts";
+      paths = config.fonts.fonts;
+      pathsToLink = [ "/share/fonts" ];
+    };
+  in lib.mkForce {
     "/" = {
       device = "/dev/mapper/ROOT";
       fsType = "btrfs";
@@ -31,7 +43,12 @@
       device = "/dev/disk/by-label/EFI";
       fsType = "vfat";
     };
+    "/usr/share/icons" = mkRoSymBind (config.system.path + "/share/icons");
+    "/usr/share/fonts" = mkRoSymBind (aggregatedFonts + "/share/fonts");
   };
+  swapDevices = [ 
+    { device = "/dev/disk/by-label/SWAP"; }
+  ];
 
   # Kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -52,16 +69,23 @@
   boot.initrd.compressor = "zstd";
   boot.initrd.compressorArgs = ["-19" "-T0"];
   boot.initrd.luks.devices."ROOT".device = lib.mkForce "/dev/disk/by-label/CRYPTROOT";
-
+  boot.initrd.availableKernelModules = ["tpm_crb"];
+  boot.initrd.systemd.enable = true;
   # Bootloader.
   boot.bootspec.enable = true;
-  boot.loader.systemd-boot.enable = lib.mkForce false;
+  boot.loader.systemd-boot.enable = lib.mkDefault false;
+  #boot.loader.secureboot = {
+  #  enable = true;
+  #  signingKeyPath = "/etc/secureboot/keys/db/db.key";
+  #  signingCertPath = "/etc/secureboot/keys/db/db.pem";
+  #};
   boot.lanzaboote = {
     enable = true;
     pkiBundle = "/etc/secureboot";
   };
   boot.loader.timeout = 0;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.efi.efiSysMountPoint = "/boot";
   hardware.cpu.intel.updateMicrocode = true;
 
   # Sysctl
@@ -196,7 +220,7 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks gnome.gvfs gnome.dconf-editor rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme libimobiledevice ripgrep ripgrep-all kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox breeze-qt5 appimage-run tpm2-tss steam-run gcc python3 nodejs
+	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks gnome.gvfs gnome.dconf-editor rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme libimobiledevice ripgrep ripgrep-all kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox breeze-qt5 appimage-run tpm2-tss steam-run gcc python3 nodejs wl-clipboard
   ];
 
   # Services
@@ -207,10 +231,14 @@
     printing.enable = true; # CUPS
     supergfxd.enable = true; # Supergfxd
     ddccontrol.enable = true; # DDC Control
-    chrony.enable = true; # Chrony
+    chrony = {
+      enable = true;
+      enableNTS = true;
+    };
     power-profiles-daemon.enable = false; # Power Profiles Daemon
     # envfs.enable = true; # Envfs
     fstrim.enable = true; # Fstrim
+    localtimed.enable = true;
   };
 
   # Fonts
@@ -242,15 +270,16 @@
     glib-networking.enable = true;
     evolution-data-server.enable = true;
     gnome-online-accounts.enable = true;
+    gnome-online-miners.enable = true;
   };
-  systemd.user.services."org.gnome.Shell@wayland".serviceConfig = {
-    CPUSchedulingPolicy = "fifo";
-    CPUSchedulingResetOnFork = true;
-  };
-  systemd.user.services."org.gnome.Shell@x11".serviceConfig = {
-    CPUSchedulingPolicy = "fifo";
-    CPUSchedulingResetOnFork = true;
-  };
+  #systemd.user.services."org.gnome.Shell@wayland".serviceConfig = {
+  #  CPUSchedulingPolicy = "fifo";
+  #  CPUSchedulingResetOnFork = true;
+  #};
+  #systemd.user.services."org.gnome.Shell@x11".serviceConfig = {
+  #  CPUSchedulingPolicy = "fifo";
+  #  CPUSchedulingResetOnFork = true;
+  #};
 
   # Docker
   virtualisation.docker = {
@@ -296,16 +325,16 @@
   hardware.opengl.enable = true;
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
   hardware.nvidia.modesetting.enable = true;
-  # hardware.nvidia.powerManagement.enable = true;
-  # hardware.nvidia.powerManagement.finegrained = true;
-  # hardware.nvidia.prime.offload = {
-    # enable = true;
-    # enableOffloadCmd = true;
-  # };
-  # hardware.nvidia.prime = {
-  #   intelBusId = "PCI:0:2:0";
-  #   nvidiaBusId = "PCI:3:0:0";
-  # };
+  hardware.nvidia.powerManagement.enable = true;
+  hardware.nvidia.powerManagement.finegrained = true;
+  hardware.nvidia.prime.offload = {
+    enable = true;
+    enableOffloadCmd = true;
+  };
+  hardware.nvidia.prime = {
+    intelBusId = "PCI:0:2:0";
+    nvidiaBusId = "PCI:3:0:0";
+  };
 
   # Zram
   zramSwap = {
@@ -424,6 +453,10 @@
 
   # Experimental
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  
+  # Flatpak workaround
+  system.fsPackages = [ pkgs.bindfs ];
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
@@ -431,6 +464,6 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.05"; # Did you read the comment?
-    
+ 
 }
 

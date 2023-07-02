@@ -8,9 +8,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     lanzaboote = {
-      url = "github:nix-community/lanzaboote/v0.3.0";
+      url = "github:nix-community/lanzaboote";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    #bootspec-secureboot = {
+    #  url = "github:DeterminateSystems/bootspec-secureboot/main";
+    #  inputs.nixpkgs.follows = "nixpkgs";
+    #};
     nur.url = "github:nix-community/NUR";
   };
   outputs = { self, nixpkgs, ... }@attrs: {
