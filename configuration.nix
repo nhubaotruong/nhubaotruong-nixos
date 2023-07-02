@@ -276,7 +276,8 @@
     power-profiles-daemon.enable = false; # Power Profiles Daemon
     envfs.enable = true; # Envfs
     fstrim.enable = true; # Fstrim
-    localtimed.enable = true;
+    localtimed.enable = true; # Localtime symlink to /etc
+    thermald.enable = true; # Thermald
   };
 
   # Fonts

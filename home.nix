@@ -198,5 +198,24 @@
       symlink "${config.home.homeDirectory}/.backup/.docker";
     "${config.home.homeDirectory}/.zshrc.old".source =
       symlink "${config.home.homeDirectory}/.backup/.zshrc";
+    "${config.xdg.configHome}/wireplumber/bluetooth.lua.d/99-bluez-config.lua".text =
+      ''
+        bluez_monitor.properties = {
+        	["bluez5.enable-sbc-xq"] = true,
+        	["bluez5.enable-msbc"] = true,
+        	["bluez5.enable-hw-volume"] = true,
+        	["bluez5.headset-roles"] = "[ hsp_hs hsp_ag hfp_hf hfp_ag ]"
+        }
+      '';
+    "${config.xdg.configHome}/wireplumber/policy.lua.d/99-bluetooth-policy.lua".text =
+      ''
+        bluetooth_policy.policy["media-role.use-headset-profile"] = false
+      '';
+    "${config.xdg.configHome}/pipewire/pipewire.conf.d/99-pipewire.conf".text =
+      ''
+        context.properties = {
+          default.clock.allowed-rates = [ 44100 48000 88200 96000 ]
+        }
+      '';
   };
 }
