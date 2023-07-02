@@ -220,7 +220,7 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks gnome.gvfs gnome.dconf-editor rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme libimobiledevice ripgrep ripgrep-all kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox breeze-qt5 appimage-run tpm2-tss steam-run gcc python3 nodejs wl-clipboard
+	  nixos-option docker-compose docker-buildx gnome.gnome-tweaks gnome.gvfs gnome.dconf-editor rar p7zip crun tilix adw-gtk3 lz4 papirus-icon-theme libimobiledevice ripgrep ripgrep-all kubectl awscli2 ssm-session-manager-plugin distrobox genymotion i2c-tools virt-manager sbctl teamviewer expressvpn niv starship ffmpegthumbnailer gnome-epub-thumbnailer nufraw-thumbnailer jetbrains-toolbox breeze-qt5 appimage-run tpm2-tss steam-run gcc python3 nodejs wl-clipboard gnome.nautilus-python intel-gpu-tools gnome.gnome-screenshot
   ];
 
   # Services
@@ -231,12 +231,9 @@
     printing.enable = true; # CUPS
     supergfxd.enable = true; # Supergfxd
     ddccontrol.enable = true; # DDC Control
-    chrony = {
-      enable = true;
-      enableNTS = true;
-    };
+    chrony.enable = true; # Chrony
     power-profiles-daemon.enable = false; # Power Profiles Daemon
-    # envfs.enable = true; # Envfs
+    envfs.enable = true; # Envfs
     fstrim.enable = true; # Fstrim
     localtimed.enable = true;
   };
@@ -258,11 +255,12 @@
   environment.gnome.excludePackages = (with pkgs; [
     gnome-photos gnome-tour gnome-text-editor gnome-console gnome-connections power-profiles-daemon
   ]) ++ (with pkgs.gnome; [
-    cheese gnome-terminal gedit epiphany geary evince gnome-characters totem tali iagno hitori atomix gnome-music gnome-calendar gnome-maps gnome-contacts gnome-software gnome-clocks gnome-calculator gnome-weather yelp simple-scan gnome-logs eog gnome-font-viewer seahorse sushi
+    cheese gnome-terminal gedit epiphany geary evince totem tali iagno hitori atomix gnome-music gnome-maps gnome-software yelp simple-scan gnome-logs eog seahorse
   ]);
   services.udev.packages = with pkgs; [gnome.gnome-settings-daemon];
   services.dbus.apparmor = "enabled";
   services.gnome = {
+    sushi.enable = true;
     gnome-keyring.enable = true;
     gnome-user-share.enable = true;
     gnome-settings-daemon.enable = true;
@@ -317,7 +315,7 @@
     QT_IM_MODULE = "ibus";
     XMODIFIERS = "@im=ibus";
     SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS = "0";    
-    LIBVA_DRIVER_NAME = "iHD";
+    ENVFS_RESOLVE_ALWAYS = "1";
   };
 
   # Nvidia
@@ -351,12 +349,13 @@
   };
 
   # System-resolved
-  networking.nameservers = [ "45.90.28.0#5ef546.dns.nextdns.io" "2a07:a8c0::#5ef546.dns.nextdns.io" "45.90.30.0#5ef546.dns.nextdns.io" "2a07:a8c1::#5ef546.dns.nextdns.io" ];
+  #networking.nameservers = [ "45.90.28.0#5ef546.dns.nextdns.io" "2a07:a8c0::#5ef546.dns.nextdns.io" "45.90.30.0#5ef546.dns.nextdns.io" "2a07:a8c1::#5ef546.dns.nextdns.io" ];
+  networking.nameservers = ["9.9.9.9" "149.112.112.112" "2620:fe::fe" "2620:fe::9"];
   services.resolved = {
     enable = true;
     dnssec = "true";
     domains = [ "~." ];
-    fallbackDns = [ "45.90.28.0#5ef546.dns.nextdns.io" "2a07:a8c0::#5ef546.dns.nextdns.io" "45.90.30.0#5ef546.dns.nextdns.io" "2a07:a8c1::#5ef546.dns.nextdns.io" ];
+    #fallbackDns = [ "45.90.28.0#5ef546.dns.nextdns.io" "2a07:a8c0::#5ef546.dns.nextdns.io" "45.90.30.0#5ef546.dns.nextdns.io" "2a07:a8c1::#5ef546.dns.nextdns.io" ];
     extraConfig = ''
       DNSOverTLS=yes
     '';

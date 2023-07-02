@@ -8,6 +8,7 @@ in
   home.stateVersion = "23.05";
   home.sessionVariables = {
     LOKI_ADDR = "http://loki-gateway.pp-local.prod";
+    NIXOS_OZONE_WL = "1";
   };
   fonts.fontconfig.enable = true;
   dconf.settings = {
@@ -65,7 +66,7 @@ in
         icon = "code";
         settings = {
           Keywords = "vscode";
-          StartupWMClass = "Code";
+          StartupWMClass = "code-url-handler";
         };
         mimeType = ["text/plain" "inode/directory"];
         name = "Visual Studio Code";
@@ -185,7 +186,7 @@ in
     fzf.enable = true;
     vscode = {
       enable = true;
-      package = pkgs.vscode;
+      package = pkgs.vscode-fhs;
     };
     mpv = {
       enable = true;
@@ -203,6 +204,5 @@ in
     "${config.home.homeDirectory}/.ssh".source = symlink "${config.home.homeDirectory}/.backup/.ssh";
     "${config.home.homeDirectory}/.docker".source = symlink "${config.home.homeDirectory}/.backup/.docker";
     "${config.home.homeDirectory}/.zshrc.old".source = symlink "${config.home.homeDirectory}/.backup/.zshrc";
-    "${config.home.homeDirectory}/.zsh_history".source = symlink "${config.home.homeDirectory}/.backup/.zsh_history";
   };
 }
