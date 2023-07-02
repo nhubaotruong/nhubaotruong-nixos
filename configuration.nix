@@ -73,7 +73,7 @@
   boot.initrd.systemd.enable = true;
   # Bootloader.
   boot.bootspec.enable = true;
-  boot.loader.systemd-boot.enable = lib.mkDefault false;
+  boot.loader.systemd-boot.enable = lib.mkForce false;
   #boot.loader.secureboot = {
   #  enable = true;
   #  signingKeyPath = "/etc/secureboot/keys/db/db.key";
