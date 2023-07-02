@@ -525,7 +525,7 @@
   # Auto update
   system.autoUpgrade = {
     enable = true;
-    dates = "daily";
+    dates = "*-*-* 20:00:00";
     flake = "/home/nhubao/Documents/nhubaotruong-nixos#Kappa-Linux";
   };
 
