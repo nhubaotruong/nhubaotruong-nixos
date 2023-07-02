@@ -5,7 +5,9 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, lib, home-manager, lanzaboote, nur, ... }:
-
+let
+  rts5139 = config.boot.kernelPackages.callPackage ./modules/rts5139.nix {};
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -52,11 +54,11 @@
   ];
 
   # Kernel
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages_lqx;
   boot.kernelParams = ["nowatchdog" "random.trustcpu=on" "zswap.enabled=1" "zswap.compressor=lz4" "zswap.zpool=z3fold" "quiet" "systemd.unified_cgroup_hierarchy=1" "cryptomgr.notests" "intel_iommu=igfx_off" "kvm-intel.nested=1" "no_timer_check" "noreplace-smp" "page_alloc_shuffle=1" "rcupdate.rcu_expedited=1" "tsc=reliable" "udev.log_level=3"];
-  boot.extraModulePackages = with config.boot.kernelPackages; [
-    v4l2loopback
-  ];
+  boot.extraModulePackages = (with config.boot.kernelPackages; [
+    v4l2loopback x86_energy_perf_policy
+  ]) ++ ([rts5139]);
   boot.kernelModules = ["v4l2loopback" "lz4" "z3fold"];
   boot.blacklistedKernelModules = ["iTCO_wdt" "nouveau"];
   boot.initrd.verbose = false;
@@ -418,6 +420,9 @@
   nix.gc = {
     automatic = true;
   };
+
+  # Optimize store
+  nix.settings.auto-optimise-store = true;
 
   # Realtime-priviliges
   users.groups = {
