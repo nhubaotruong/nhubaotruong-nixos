@@ -48,6 +48,12 @@
     iputils
     usbutils
     pciutils
+    powertop
+    zip
+    unzip
+    neofetch
+    podman-compose
+    ddcutil
   ]) ++ (with pkgs.gnome; [
     gnome-tweaks
     gvfs

@@ -99,6 +99,10 @@
       enableAutosuggestions = true;
       syntaxHighlighting.enable = true;
       enableVteIntegration = true;
+      history = {
+        expireDuplicatesFirst = true;
+        size = 2147483647;
+      };
       oh-my-zsh = {
         enable = true;
         plugins = [ "git" "sudo" "docker" "docker-compose" ];

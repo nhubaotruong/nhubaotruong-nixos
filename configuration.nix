@@ -5,7 +5,7 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, lib, ... }:
-
+# let dnsmasqAddr = "172.17.0.1"; in 
 {
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
@@ -54,7 +54,7 @@
   swapDevices = [{ device = "/dev/disk/by-label/SWAP"; }];
 
   # Kernel
-  boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.kernelParams = [
     "nowatchdog"
     "random.trustcpu=on"
@@ -276,6 +276,15 @@
     localtimed.enable = true; # Localtime symlink to /etc
     thermald.enable = true; # Thermald
     gvfs.enable = true; # Gvfs
+    # dnsmasq = {
+    #   enable = true;
+    #   settings = {
+    #     server = [ "127.0.0.53" ];
+    #     interface = "docker0";
+    #     listen-address = dnsmasqAddr;
+    #     bind-dynamic = true;
+    #   };
+    # };
   };
 
   # Fonts
@@ -356,6 +365,7 @@
     daemon.settings = {
       default-runtime = "crun";
       runtimes = { crun = { path = "${pkgs.crun}/bin/crun"; }; };
+      # dns = [ dnsmasqAddr ];
     };
   };
 
@@ -412,15 +422,21 @@
   # Apparmor
   security.apparmor = {
     enable = true;
-    packages = with pkgs; [ apparmor-pam apparmor-profiles ];
+    # policies = pkgs.apparmor-profiles;
   };
 
   # System-resolved
+  # networking.nameservers = [
+  #   "45.90.28.0#5ef546.dns.nextdns.io"
+  #   "2a07:a8c0::#5ef546.dns.nextdns.io"
+  #   "45.90.30.0#5ef546.dns.nextdns.io"
+  #   "2a07:a8c1::#5ef546.dns.nextdns.io"
+  # ];
   networking.nameservers = [
-    "45.90.28.0#5ef546.dns.nextdns.io"
-    "2a07:a8c0::#5ef546.dns.nextdns.io"
-    "45.90.30.0#5ef546.dns.nextdns.io"
-    "2a07:a8c1::#5ef546.dns.nextdns.io"
+    "9.9.9.9#dns.quad9.net"
+    "2620:fe::fe#dns.quad9.net"
+    "149.112.112.112#dns.quad9.net"
+    "2620:fe::9#dns.quad9.net"
   ];
   services.resolved = {
     enable = true;
@@ -488,7 +504,15 @@
   security.tpm2.enable = true;
 
   # Firewall
-  networking.firewall = { enable = true; };
+  networking.firewall = {
+    enable = true;
+    extraCommands = ''
+      iptables -F FORWARD
+      iptables -P FORWARD ACCEPT
+    '';
+    # trustedInterfaces = [ "docker0" ];
+    # allowedUDPPorts = [ config.services.tailscale.port ];
+  };
 
   # Garbage collect
   nix.gc = { automatic = true; };
