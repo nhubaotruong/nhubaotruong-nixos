@@ -217,5 +217,17 @@
           default.clock.allowed-rates = [ 44100 48000 88200 96000 ]
         }
       '';
+    "${config.xdg.configHome}/systemd/user/org.gnome.Shell@x11.service.d/overrides.conf".text =
+      ''
+        [Service]
+        CPUSchedulingPolicy=fifo
+        CPUSchedulingResetOnFork=true
+      '';
+    "${config.xdg.configHome}/systemd/user/org.gnome.Shell@wayland.service.d/overrides.conf".text =
+      ''
+        [Service]
+        CPUSchedulingPolicy=fifo
+        CPUSchedulingResetOnFork=true
+      '';
   };
 }
