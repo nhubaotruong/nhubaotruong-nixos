@@ -106,11 +106,6 @@
   # Bootloader.
   boot.bootspec.enable = true;
   boot.loader.systemd-boot.enable = lib.mkForce false;
-  #boot.loader.secureboot = {
-  #  enable = true;
-  #  signingKeyPath = "/etc/secureboot/keys/db/db.key";
-  #  signingCertPath = "/etc/secureboot/keys/db/db.pem";
-  #};
   boot.lanzaboote = {
     enable = true;
     pkiBundle = "/etc/secureboot";
@@ -223,6 +218,7 @@
       "video"
       "kvm"
       "input"
+      "camera"
     ];
     shell = pkgs.zsh;
     subUidRanges = [{
@@ -255,6 +251,7 @@
       enable = true;
       package = pkgs.gnomeExtensions.gsconnect;
     };
+    gphoto2.enable = true;
   };
 
   # Allow unfree packages
@@ -278,6 +275,7 @@
     fstrim.enable = true; # Fstrim
     localtimed.enable = true; # Localtime symlink to /etc
     thermald.enable = true; # Thermald
+    gvfs.enable = true; # Gvfs
   };
 
   # Fonts
@@ -547,11 +545,13 @@
       DefaultCPUAccounting=yes
       DefaultMemoryAccounting=yes
       DefaultIOAccounting=yes
+      DefaultTimeoutStopSec=10s
     '';
     user.extraConfig = ''
       DefaultCPUAccounting=yes
       DefaultMemoryAccounting=yes
       DefaultIOAccounting=yes
+      DefaultTimeoutStopSec=10s
     '';
   };
   systemd.services."user@".serviceConfig.Delegate = true;

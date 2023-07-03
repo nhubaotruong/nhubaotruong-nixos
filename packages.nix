@@ -13,6 +13,7 @@
     lz4
     papirus-icon-theme
     libimobiledevice
+    usbmuxd
     ripgrep
     ripgrep-all
     kubectl
@@ -44,6 +45,9 @@
     rnix-lsp
     nixfmt
     lm_sensors
+    iputils
+    usbutils
+    pciutils
   ]) ++ (with pkgs.gnome; [
     gnome-tweaks
     gvfs
