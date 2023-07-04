@@ -1,6 +1,6 @@
 { pkgs, ... }:
-
-{
+let uksmd = pkgs.callPackage ./apps/uksmd.nix { };
+in {
   environment.systemPackages = (with pkgs; [
     nixos-option
     docker-compose
@@ -36,7 +36,11 @@
     appimage-run
     tpm2-tss
     steam-run
-    gcc
+    (gcc.overrideAttrs (oldAttrs: {
+      CPPFLAGS = "-march=native";
+      CFLAGS = "-march=native";
+      CXXFLAGS = "-march=native";
+    }))
     python3
     nodejs
     wl-clipboard
@@ -54,6 +58,7 @@
     neofetch
     podman-compose
     ddcutil
+    # uksmd
   ]) ++ (with pkgs.gnome; [
     gnome-tweaks
     gvfs

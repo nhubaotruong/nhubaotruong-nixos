@@ -5,8 +5,22 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, lib, ... }:
-# let dnsmasqAddr = "172.17.0.1"; in 
-{
+let
+  linux_pf_pkg = { fetchurl, buildLinux, ... }@args:
+    buildLinux (args // rec {
+      version = "6.4.0-pf1";
+      modDirVersion = version;
+
+      src = fetchurl {
+        url = "https://codeberg.org/pf-kernel/linux/archive/v6.4-pf1.tar.gz";
+        sha256 = "sha256-/g5vJReO03gBq0CnxEYiDINBetY605p636TxHek8oP8=";
+      };
+      kernelPatches = [ ];
+
+      extraMeta.branch = "6.4";
+    } // (args.argsOverride or { }));
+  linux_pf = pkgs.callPackage linux_pf_pkg { };
+in {
   imports = [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./packages.nix
@@ -54,7 +68,8 @@
   swapDevices = [{ device = "/dev/disk/by-label/SWAP"; }];
 
   # Kernel
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_pf);
   boot.kernelParams = [
     "nowatchdog"
     "random.trustcpu=on"
@@ -252,6 +267,10 @@
       package = pkgs.gnomeExtensions.gsconnect;
     };
     gphoto2.enable = true;
+    ccache = {
+      enable = true;
+      packageNames = [ "linuxPackages_latest" "linux_pf" "uksmd" ];
+    };
   };
 
   # Allow unfree packages
@@ -276,6 +295,7 @@
     localtimed.enable = true; # Localtime symlink to /etc
     thermald.enable = true; # Thermald
     gvfs.enable = true; # Gvfs
+    # uksmd.enable = true;
     # dnsmasq = {
     #   enable = true;
     #   settings = {
@@ -510,12 +530,15 @@
       iptables -F FORWARD
       iptables -P FORWARD ACCEPT
     '';
-    # trustedInterfaces = [ "docker0" ];
+    trustedInterfaces = [ "docker0" ];
     # allowedUDPPorts = [ config.services.tailscale.port ];
   };
 
   # Garbage collect
-  nix.gc = { automatic = true; };
+  nix.gc = {
+    automatic = true;
+    dates = "daily";
+  };
 
   # Optimize store
   nix.settings.auto-optimise-store = true;
@@ -579,6 +602,50 @@
     '';
   };
   systemd.services."user@".serviceConfig.Delegate = true;
+
+  # Ccache
+  nix.settings.extra-sandbox-paths = [ config.programs.ccache.cacheDir ];
+
+  # Overlay
+  nixpkgs.overlays = [
+    (self: super: {
+      ccacheWrapper = super.ccacheWrapper.override {
+        extraConfig = ''
+          export CCACHE_COMPRESS=1
+          export CCACHE_DIR="${config.programs.ccache.cacheDir}"
+          export CCACHE_UMASK=007
+          if [ ! -d "$CCACHE_DIR" ]; then
+            echo "====="
+            echo "Directory '$CCACHE_DIR' does not exist"
+            echo "Please create it with:"
+            echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
+            echo "  sudo chown root:nixbld '$CCACHE_DIR'"
+            echo "====="
+            exit 1
+          fi
+          if [ ! -w "$CCACHE_DIR" ]; then
+            echo "====="
+            echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
+            echo "Please verify its access permissions"
+            echo "====="
+            exit 1
+          fi
+        '';
+      };
+    })
+    (self: super: {
+      ibus-engines.bamboo = super.ibus-engines.bamboo.overrideAttrs
+        (oldAttrs: rec {
+          version = "0.8.2-RC18";
+          src = super.fetchFromGitHub {
+            owner = "BambooEngine";
+            repo = oldAttrs.pname;
+            rev = "v${version}";
+            sha256 = "sha256-5FSGPUJtUdYyeqJenvKaMIJcvon91I//62fnTCXcdig=";
+          };
+        });
+    })
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
