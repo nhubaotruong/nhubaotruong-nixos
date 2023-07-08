@@ -90,7 +90,7 @@
     "tsc=reliable"
     "udev.log_level=3"
   ];
-  boot.resumeDevice = config.swapDevices .0.device;
+  boot.resumeDevice = "/dev/disk/by-label/SWAP";
   boot.extraModulePackages =
     let
       rts5139 = config.boot.kernelPackages.callPackage ./modules/rts5139.nix { };

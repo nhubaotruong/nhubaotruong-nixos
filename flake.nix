@@ -19,7 +19,6 @@
         system = "x86_64-linux";
         modules = [
           ./configuration.nix
-          fhs-compat.nixosModules.fhs
           lanzaboote.nixosModules.lanzaboote
           home-manager.nixosModules.default
           nur.nixosModules.nur
