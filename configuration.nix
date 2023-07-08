@@ -261,7 +261,7 @@
   # Nix-env programs
   programs = {
     zsh.enable = true;
-    # nix-ld.enable = true;
+    nix-ld.enable = true;
     xwayland.enable = true;
     gnupg.agent = {
       enable = true;
@@ -296,21 +296,18 @@
     ddccontrol.enable = true; # DDC Control
     chrony.enable = true; # Chrony
     power-profiles-daemon.enable = false; # Power Profiles Daemon
-    # envfs.enable = true; # Envfs
+    envfs.enable = true; # Envfs
     fstrim.enable = true; # Fstrim
     localtimed.enable = true; # Localtime symlink to /etc
     thermald.enable = true; # Thermald
     gvfs.enable = true; # Gvfs
-    # uksmd.enable = true;
-    # dnsmasq = {
-    #   enable = true;
-    #   settings = {
-    #     server = [ "127.0.0.53" ];
-    #     interface = "docker0";
-    #     listen-address = dnsmasqAddr;
-    #     bind-dynamic = true;
-    #   };
-    # };
+    dnsmasq = {
+      enable = true;
+      settings = {
+        server = [ "127.0.0.53" ];
+        bind-dynamic = true;
+      };
+    };
   };
 
   # Fonts
@@ -391,7 +388,6 @@
     daemon.settings = {
       default-runtime = "crun";
       runtimes = { crun = { path = "${pkgs.crun}/bin/crun"; }; };
-      # dns = [ dnsmasqAddr ];
     };
   };
 
