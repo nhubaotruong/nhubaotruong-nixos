@@ -1,7 +1,6 @@
 { pkgs, ... }:
-let uksmd = pkgs.callPackage ./apps/uksmd.nix { };
-in {
-  environment.systemPackages = (with pkgs; [
+{
+  home.packages = (with pkgs; [
     nixos-option
     docker-compose
     docker-buildx
@@ -35,7 +34,7 @@ in {
     breeze-qt5
     appimage-run
     tpm2-tss
-    steam-run
+    # steam-run
     (gcc.overrideAttrs (oldAttrs: {
       CPPFLAGS = "-march=native";
       CFLAGS = "-march=native";
@@ -58,7 +57,6 @@ in {
     neofetch
     podman-compose
     ddcutil
-    # uksmd
   ]) ++ (with pkgs.gnome; [
     gnome-tweaks
     gvfs

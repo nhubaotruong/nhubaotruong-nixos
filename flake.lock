@@ -1,5 +1,17 @@
 {
   "nodes": {
+    "fhs-compat": {
+      "locked": {
+        "lastModified": 1,
+        "narHash": "sha256-rWX3BG/6fquyyJAV9Dh+xc3BSAtj+bkBJCPdxI3l0Uo=",
+        "path": "modules",
+        "type": "path"
+      },
+      "original": {
+        "path": "modules",
+        "type": "path"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -201,6 +213,7 @@
     },
     "root": {
       "inputs": {
+        "fhs-compat": "fhs-compat",
         "home-manager": "home-manager",
         "lanzaboote": "lanzaboote",
         "nixpkgs": "nixpkgs",

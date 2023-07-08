@@ -1,6 +1,9 @@
 { config, pkgs, lib, ... }:
 
 {
+  imports = [
+    ./packages.nix
+  ];
   home.username = "nhubao";
   home.homeDirectory = "/home/nhubao";
   home.stateVersion = "23.05";
@@ -242,50 +245,37 @@
     "grep" = "rga";
     "docker-compose" = "docker-compose --compatibility";
   };
-  home.file = let symlink = config.lib.file.mkOutOfStoreSymlink;
-  in {
-    "${config.home.homeDirectory}/.config/nvim".source =
-      symlink "${config.home.homeDirectory}/.backup/nvim";
-    "${config.home.homeDirectory}/.aws".source =
-      symlink "${config.home.homeDirectory}/.backup/.aws";
-    "${config.home.homeDirectory}/.kube".source =
-      symlink "${config.home.homeDirectory}/.backup/.kube";
-    "${config.home.homeDirectory}/.ssh".source =
-      symlink "${config.home.homeDirectory}/.backup/.ssh";
-    "${config.home.homeDirectory}/.docker".source =
-      symlink "${config.home.homeDirectory}/.backup/.docker";
-    "${config.home.homeDirectory}/.zshrc.old".source =
-      symlink "${config.home.homeDirectory}/.backup/.zshrc";
-    "${config.xdg.configHome}/wireplumber/bluetooth.lua.d/99-bluez-config.lua".text =
-      ''
-        bluez_monitor.properties = {
-        	["bluez5.enable-sbc-xq"] = true,
-        	["bluez5.enable-msbc"] = true,
-        	["bluez5.enable-hw-volume"] = true,
-        	["bluez5.headset-roles"] = "[ hsp_hs hsp_ag hfp_hf hfp_ag ]"
-        }
-      '';
-    "${config.xdg.configHome}/wireplumber/policy.lua.d/99-bluetooth-policy.lua".text =
-      ''
-        bluetooth_policy.policy["media-role.use-headset-profile"] = false
-      '';
-    "${config.xdg.configHome}/pipewire/pipewire.conf.d/99-pipewire.conf".text =
-      ''
-        context.properties = {
-          default.clock.allowed-rates = [ 44100 48000 88200 96000 ]
-        }
-      '';
-    "${config.xdg.configHome}/systemd/user/org.gnome.Shell@x11.service.d/overrides.conf".text =
-      ''
-        [Service]
-        CPUSchedulingPolicy=fifo
-        CPUSchedulingResetOnFork=true
-      '';
-    "${config.xdg.configHome}/systemd/user/org.gnome.Shell@wayland.service.d/overrides.conf".text =
-      ''
-        [Service]
-        CPUSchedulingPolicy=fifo
-        CPUSchedulingResetOnFork=true
-      '';
-  };
+  home.file =
+    let symlink = config.lib.file.mkOutOfStoreSymlink;
+    in
+    {
+      "${config.home.homeDirectory}/.config/nvim".source =
+        symlink "${config.home.homeDirectory}/.backup/nvim";
+      "${config.home.homeDirectory}/.aws".source =
+        symlink "${config.home.homeDirectory}/.backup/.aws";
+      "${config.home.homeDirectory}/.kube".source =
+        symlink "${config.home.homeDirectory}/.backup/.kube";
+      "${config.home.homeDirectory}/.ssh".source =
+        symlink "${config.home.homeDirectory}/.backup/.ssh";
+      "${config.home.homeDirectory}/.docker".source =
+        symlink "${config.home.homeDirectory}/.backup/.docker";
+      "${config.home.homeDirectory}/.zshrc.old".source =
+        symlink "${config.home.homeDirectory}/.backup/.zshrc";
+      "${config.xdg.configHome}/wireplumber/policy.lua.d/99-bluetooth-policy.lua".text =
+        ''
+          bluetooth_policy.policy["media-role.use-headset-profile"] = false
+        '';
+      "${config.xdg.configHome}/systemd/user/org.gnome.Shell@x11.service.d/overrides.conf".text =
+        ''
+          [Service]
+          CPUSchedulingPolicy=fifo
+          CPUSchedulingResetOnFork=true
+        '';
+      "${config.xdg.configHome}/systemd/user/org.gnome.Shell@wayland.service.d/overrides.conf".text =
+        ''
+          [Service]
+          CPUSchedulingPolicy=fifo
+          CPUSchedulingResetOnFork=true
+        '';
+    };
 }

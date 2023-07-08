@@ -1,75 +1,78 @@
-
-
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, lib, ... }:
-let
-  linux_pf_pkg = { fetchurl, buildLinux, ... }@args:
-    buildLinux (args // rec {
-      version = "6.4.0-pf1";
-      modDirVersion = version;
+# let
+#   linux_pf_pkg = { fetchurl, buildLinux, ... }@args:
+#     buildLinux (args // rec {
+#       version = "6.4.0-pf1";
+#       modDirVersion = version;
 
-      src = fetchurl {
-        url = "https://codeberg.org/pf-kernel/linux/archive/v6.4-pf1.tar.gz";
-        sha256 = "sha256-/g5vJReO03gBq0CnxEYiDINBetY605p636TxHek8oP8=";
-      };
-      kernelPatches = [ ];
+#       src = fetchurl {
+#         url = "https://codeberg.org/pf-kernel/linux/archive/v6.4-pf1.tar.gz";
+#         sha256 = "sha256-/g5vJReO03gBq0CnxEYiDINBetY605p636TxHek8oP8=";
+#       };
+#       kernelPatches = [ ];
 
-      extraMeta.branch = "6.4";
-    } // (args.argsOverride or { }));
-  linux_pf = pkgs.callPackage linux_pf_pkg { };
-in {
-  imports = [ # Include the results of the hardware scan.
+#       extraMeta.branch = "6.4";
+#     } // (args.argsOverride or { }));
+#   linux_pf = pkgs.callPackage linux_pf_pkg { };
+# in
+{
+  imports = [
+    # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    ./packages.nix
+    # ./packages.nix
+    ./overlays.nix
   ];
 
   # Filesystems
-  fileSystems = let
-    mkRoSymBind = path: {
-      device = path;
-      fsType = "fuse.bindfs";
-      options = [ "ro" "resolve-symlinks" "x-gvfs-hide" ];
+  fileSystems =
+    let
+      mkRoSymBind = path: {
+        device = path;
+        fsType = "fuse.bindfs";
+        options = [ "ro" "resolve-symlinks" "x-gvfs-hide" ];
+      };
+      aggregatedFonts = pkgs.buildEnv {
+        name = "system-fonts";
+        paths = config.fonts.fonts;
+        pathsToLink = [ "/share/fonts" ];
+      };
+      btrfsOptions = [
+        "noatime"
+        "nodiratime"
+        "defaults"
+        "ssd"
+        "compress-force=zstd"
+        "discard=async"
+        "space_cache=v2"
+      ];
+    in
+    lib.mkForce {
+      "/" = {
+        device = "/dev/mapper/ROOT";
+        fsType = "btrfs";
+        options = ([ "subvol=@" ]) ++ (btrfsOptions);
+      };
+      "/home" = {
+        device = "/dev/mapper/ROOT";
+        fsType = "btrfs";
+        options = ([ "subvol=@home" ]) ++ (btrfsOptions);
+      };
+      "/boot" = {
+        device = "/dev/disk/by-label/EFI";
+        fsType = "vfat";
+      };
+      "/usr/share/icons" = mkRoSymBind (config.system.path + "/share/icons");
+      "/usr/share/fonts" = mkRoSymBind (aggregatedFonts + "/share/fonts");
     };
-    aggregatedFonts = pkgs.buildEnv {
-      name = "system-fonts";
-      paths = config.fonts.fonts;
-      pathsToLink = [ "/share/fonts" ];
-    };
-    btrfsOptions = [
-      "noatime"
-      "nodiratime"
-      "defaults"
-      "ssd"
-      "compress-force=zstd"
-      "discard=async"
-      "space_cache=v2"
-    ];
-  in lib.mkForce {
-    "/" = {
-      device = "/dev/mapper/ROOT";
-      fsType = "btrfs";
-      options = ([ "subvol=@" ]) ++ (btrfsOptions);
-    };
-    "/home" = {
-      device = "/dev/mapper/ROOT";
-      fsType = "btrfs";
-      options = ([ "subvol=@home" ]) ++ (btrfsOptions);
-    };
-    "/boot" = {
-      device = "/dev/disk/by-label/EFI";
-      fsType = "vfat";
-    };
-    "/usr/share/icons" = mkRoSymBind (config.system.path + "/share/icons");
-    "/usr/share/fonts" = mkRoSymBind (aggregatedFonts + "/share/fonts");
-  };
   swapDevices = [{ device = "/dev/disk/by-label/SWAP"; }];
 
   # Kernel
-  # boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_pf);
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.recurseIntoAttrs (pkgs.linuxPackagesFor linux_pf);
   boot.kernelParams = [
     "nowatchdog"
     "random.trustcpu=on"
@@ -87,10 +90,13 @@ in {
     "tsc=reliable"
     "udev.log_level=3"
   ];
-  boot.extraModulePackages = let
-    rts5139 = config.boot.kernelPackages.callPackage ./modules/rts5139.nix { };
-  in (with config.boot.kernelPackages; [ v4l2loopback x86_energy_perf_policy ])
-  ++ ([ rts5139 ]);
+  boot.resumeDevice = config.swapDevices .0.device;
+  boot.extraModulePackages =
+    let
+      rts5139 = config.boot.kernelPackages.callPackage ./modules/rts5139.nix { };
+    in
+    (with config.boot.kernelPackages; [ v4l2loopback x86_energy_perf_policy ])
+    ++ ([ rts5139 ]);
   boot.kernelModules = [ "v4l2loopback" "lz4" "z3fold" ];
   boot.blacklistedKernelModules = [ "iTCO_wdt" "nouveau" ];
   boot.initrd.verbose = false;
@@ -120,11 +126,11 @@ in {
 
   # Bootloader.
   boot.bootspec.enable = true;
-  boot.loader.systemd-boot.enable = lib.mkForce false;
-  boot.lanzaboote = {
-    enable = true;
-    pkiBundle = "/etc/secureboot";
-  };
+  boot.loader.systemd-boot.enable = true;
+  # boot.lanzaboote = {
+  #   enable = true;
+  #   pkiBundle = "/etc/secureboot";
+  # };
   boot.loader.timeout = 0;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.efi.efiSysMountPoint = "/boot";
@@ -255,7 +261,7 @@ in {
   # Nix-env programs
   programs = {
     zsh.enable = true;
-    nix-ld.enable = true;
+    # nix-ld.enable = true;
     xwayland.enable = true;
     gnupg.agent = {
       enable = true;
@@ -267,10 +273,10 @@ in {
       package = pkgs.gnomeExtensions.gsconnect;
     };
     gphoto2.enable = true;
-    ccache = {
-      enable = true;
-      packageNames = [ "linuxPackages_latest" "linux_pf" "uksmd" ];
-    };
+    # ccache = {
+    #   enable = true;
+    #   packageNames = [ "linuxPackages_latest" "linux_pf" "uksmd" ];
+    # };
   };
 
   # Allow unfree packages
@@ -290,7 +296,7 @@ in {
     ddccontrol.enable = true; # DDC Control
     chrony.enable = true; # Chrony
     power-profiles-daemon.enable = false; # Power Profiles Daemon
-    envfs.enable = true; # Envfs
+    # envfs.enable = true; # Envfs
     fstrim.enable = true; # Fstrim
     localtimed.enable = true; # Localtime symlink to /etc
     thermald.enable = true; # Thermald
@@ -410,7 +416,7 @@ in {
     QT_IM_MODULE = "ibus";
     XMODIFIERS = "@im=ibus";
     SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS = "0";
-    ENVFS_RESOLVE_ALWAYS = "1";
+    # ENVFS_RESOLVE_ALWAYS = "1";
     GAMEMODERUNEXEC =
       "env __NV_PRIME_RENDER_OFFLOAD=1 env __GLX_VENDOR_LIBRARY_NAME=nvidia env __VK_LAYER_NV_optimus=NVIDIA_only";
   };
@@ -601,51 +607,10 @@ in {
       DefaultTimeoutStopSec=10s
     '';
   };
-  systemd.services."user@".serviceConfig.Delegate = true;
+  # systemd.services."user@".serviceConfig.Delegate = true;
 
   # Ccache
-  nix.settings.extra-sandbox-paths = [ config.programs.ccache.cacheDir ];
-
-  # Overlay
-  nixpkgs.overlays = [
-    (self: super: {
-      ccacheWrapper = super.ccacheWrapper.override {
-        extraConfig = ''
-          export CCACHE_COMPRESS=1
-          export CCACHE_DIR="${config.programs.ccache.cacheDir}"
-          export CCACHE_UMASK=007
-          if [ ! -d "$CCACHE_DIR" ]; then
-            echo "====="
-            echo "Directory '$CCACHE_DIR' does not exist"
-            echo "Please create it with:"
-            echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
-            echo "  sudo chown root:nixbld '$CCACHE_DIR'"
-            echo "====="
-            exit 1
-          fi
-          if [ ! -w "$CCACHE_DIR" ]; then
-            echo "====="
-            echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
-            echo "Please verify its access permissions"
-            echo "====="
-            exit 1
-          fi
-        '';
-      };
-    })
-    (self: super: {
-      ibus-engines.bamboo = super.ibus-engines.bamboo.overrideAttrs
-        (oldAttrs: rec {
-          version = "0.8.2-RC18";
-          src = super.fetchFromGitHub {
-            owner = "BambooEngine";
-            repo = oldAttrs.pname;
-            rev = "v${version}";
-            sha256 = "sha256-5FSGPUJtUdYyeqJenvKaMIJcvon91I//62fnTCXcdig=";
-          };
-        });
-    })
-  ];
+  # nix.settings.extra-sandbox-paths = [ config.programs.ccache.cacheDir ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
