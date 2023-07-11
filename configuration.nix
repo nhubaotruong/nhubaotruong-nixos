@@ -294,7 +294,6 @@
     printing.enable = true; # CUPS
     supergfxd.enable = true; # Supergfxd
     ddccontrol.enable = true; # DDC Control
-    chrony.enable = true; # Chrony
     power-profiles-daemon.enable = false; # Power Profiles Daemon
     envfs.enable = true; # Envfs
     fstrim.enable = true; # Fstrim
@@ -434,12 +433,12 @@
   };
 
   # Zram
-  zramSwap = {
-    enable = true;
-    algorithm = "lz4";
-    memoryPercent = 25;
-    priority = 100;
-  };
+  # zramSwap = {
+  #   enable = true;
+  #   algorithm = "lz4";
+  #   memoryPercent = 25;
+  #   priority = 100;
+  # };
 
   # Apparmor
   security.apparmor = {
@@ -471,7 +470,8 @@
       "2620:fe::9#dns.quad9.net"
     ];
     extraConfig = ''
-      DNSOverTLS=yes
+      DNSOverTLS=opportunistic
+      MulticastDNS=yes
     '';
   };
   systemd.services.NetworkManager-wait-online.enable = false;
