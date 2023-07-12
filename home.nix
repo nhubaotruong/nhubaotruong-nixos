@@ -1,9 +1,6 @@
 { config, pkgs, lib, ... }:
 
 {
-  imports = [
-    ./packages.nix
-  ];
   home.username = "nhubao";
   home.homeDirectory = "/home/nhubao";
   home.stateVersion = "23.05";

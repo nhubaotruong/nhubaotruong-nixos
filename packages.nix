@@ -1,6 +1,6 @@
 { pkgs, ... }:
 {
-  home.packages = (with pkgs; [
+  environment.systemPackages = (with pkgs; [
     nixos-option
     docker-compose
     docker-buildx
