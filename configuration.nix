@@ -224,6 +224,7 @@
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.defaultUserShell = pkgs.zsh;
   users.users.nhubao = {
     isNormalUser = true;
     description = "Nhu Bao Truong";
@@ -411,9 +412,10 @@
     QT_IM_MODULE = "ibus";
     XMODIFIERS = "@im=ibus";
     SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS = "0";
-    # ENVFS_RESOLVE_ALWAYS = "1";
+    ENVFS_RESOLVE_ALWAYS = "1";
     GAMEMODERUNEXEC =
       "env __NV_PRIME_RENDER_OFFLOAD=1 env __GLX_VENDOR_LIBRARY_NAME=nvidia env __VK_LAYER_NV_optimus=NVIDIA_only";
+    NIX_BUILD_SHELL = "${pkgs.zsh}/bin/zsh";
   };
 
   # Nvidia
