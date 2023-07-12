@@ -57,6 +57,7 @@
     neofetch
     podman-compose
     ddcutil
+    any-nix-shell
   ]) ++ (with pkgs.gnome; [
     gnome-tweaks
     gvfs
