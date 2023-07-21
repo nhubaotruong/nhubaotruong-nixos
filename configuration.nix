@@ -152,7 +152,6 @@
   networking.networkmanager = {
     enable = true;
     dns = "systemd-resolved";
-    firewallBackend = "nftables";
     wifi = {
       backend = "iwd";
       powersave = true;
@@ -587,7 +586,7 @@
   system.autoUpgrade = {
     enable = true;
     dates = "*-*-* 20:00:00";
-    flake = "/home/nhubao/Documents/nhubaotruong-nixos#Kappa-Linux";
+    flake = "path:/home/nhubao/Documents/nhubaotruong-nixos#Kappa-Linux";
   };
 
   # Prioritize user process
