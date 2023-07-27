@@ -593,16 +593,10 @@
   # Prioritize user process
   systemd = {
     extraConfig = ''
-      DefaultCPUAccounting=yes
-      DefaultMemoryAccounting=yes
-      DefaultIOAccounting=yes
-      DefaultTimeoutStopSec=10s
+      DefaultTimeoutStopSec=5s
     '';
     user.extraConfig = ''
-      DefaultCPUAccounting=yes
-      DefaultMemoryAccounting=yes
-      DefaultIOAccounting=yes
-      DefaultTimeoutStopSec=10s
+      DefaultTimeoutStopSec=5s
     '';
   };
   # systemd.services."user@".serviceConfig.Delegate = true;
