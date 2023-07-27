@@ -571,6 +571,7 @@
   services.udev.extraRules = ''
     # rw access to /dev/cpu_dma_latency to prevent CPUs from going into idle state
     KERNEL=="cpu_dma_latency", GROUP="realtime"
+    ACTION=="add", SUBSYSTEM=="net", KERNEL=="wl*", RUN+="${pkgs.iw}/bin/iw dev $name set power_save on"
   '';
 
   # Experimental
