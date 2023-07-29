@@ -156,6 +156,10 @@
       backend = "iwd";
       powersave = true;
     };
+    connectionConfig = {
+      connection.mdns=2;
+      connection.llmnr=0;
+    };
   };
   # Bluetooth
   hardware.bluetooth = {
@@ -476,6 +480,17 @@
     '';
   };
   systemd.services.NetworkManager-wait-online.enable = false;
+
+  # Avahi
+  services.avahi = {
+    enable = true;
+    nssmdns = true;
+    publish = {
+      enable = true;
+      addresses = true;
+      workstation = true;
+    };
+  };
 
   # TLP
   services.tlp = {
