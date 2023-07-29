@@ -108,7 +108,7 @@
     options iwlwifi power_save=1
   '';
   boot.initrd.compressor = "zstd";
-  boot.initrd.compressorArgs = [ "-19" "-T0" ];
+  boot.initrd.compressorArgs = [ "-25" "-T0" ];
   boot.initrd.luks.devices."ROOT".device =
     lib.mkForce "/dev/disk/by-label/CRYPTROOT";
   boot.initrd.availableKernelModules = [ "tpm_crb" ];
