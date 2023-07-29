@@ -495,6 +495,8 @@
       AHCI_RUNTIME_PM_ON_BAT = "auto";
       RUNTIME_PM_ON_AC = "auto";
       RUNTIME_PM_ON_BAT = "auto";
+      WIFI_PWR_ON_AC = "on";
+      WIFI_PWR_ON_BAT = "on";
     };
   };
 
