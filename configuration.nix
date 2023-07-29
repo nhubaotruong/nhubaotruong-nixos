@@ -157,8 +157,8 @@
       powersave = true;
     };
     connectionConfig = {
-      connection.mdns=2;
-      connection.llmnr=0;
+      "connection.mdns" = "2";
+      "connection.llmnr" = "0";
     };
   };
   # Bluetooth
@@ -422,20 +422,20 @@
   };
 
   # Nvidia
-  services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.opengl.enable = true;
-  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
-  hardware.nvidia.modesetting.enable = true;
-  hardware.nvidia.powerManagement.enable = true;
-  hardware.nvidia.powerManagement.finegrained = true;
-  hardware.nvidia.prime.offload = {
-    enable = true;
-    enableOffloadCmd = true;
-  };
-  hardware.nvidia.prime = {
-    intelBusId = "PCI:0:2:0";
-    nvidiaBusId = "PCI:3:0:0";
-  };
+  # services.xserver.videoDrivers = [ "nvidia" ];
+  # hardware.opengl.enable = true;
+  # hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
+  # hardware.nvidia.modesetting.enable = true;
+  # hardware.nvidia.powerManagement.enable = true;
+  # hardware.nvidia.powerManagement.finegrained = true;
+  # hardware.nvidia.prime.offload = {
+  #   enable = true;
+  #   enableOffloadCmd = true;
+  # };
+  # hardware.nvidia.prime = {
+  #   intelBusId = "PCI:0:2:0";
+  #   nvidiaBusId = "PCI:3:0:0";
+  # };
 
   # Zram
   # zramSwap = {
